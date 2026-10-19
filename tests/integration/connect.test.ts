@@ -255,6 +255,38 @@ describe('Facebook 連結', () => {
     expect((await readConfig(db, ['FB_PAGE_CANDIDATES'])).FB_PAGE_CANDIDATES).toBeUndefined();
   });
 
+  it('pages under a business portfolio are found through the business', async () => {
+    await saveApp();
+    stubMeta([
+      [/oauth\/access_token\?client_id/, () => json({ access_token: 'user-short' })],
+      [/oauth\/access_token\?grant_type=fb_exchange_token/, () => json({ access_token: 'user-long' })],
+      [/\/me\/accounts/, () => json({ data: [] })],
+      [/\/me\/businesses/, () => json({ data: [{ id: 'biz-1' }] })],
+      [/biz-1\/owned_pages/, () => json({ data: [{ id: 'page-b', name: '商家粉專', access_token: 'tok-b' }] })],
+      [/biz-1\/client_pages/, () => json({ data: [] })],
+      [/\/subscribed_apps/, () => json({ success: true })],
+      [/\/subscriptions/, () => json({ success: true })],
+    ]);
+    const state = await createOAuthState(env as never, { p: 'facebook', u: 'a1', r: RETURN_TO });
+    const res = await createApp().fetch(new Request(`${API}/api/oauth/facebook/callback?code=c&state=${encodeURIComponent(state)}`), env);
+    expect(new URL(res.headers.get('Location')!).searchParams.get('status')).toBe('ok');
+    expect((await readConfig(db, ['FACEBOOK_PAGE_ACCESS_TOKEN'])).FACEBOOK_PAGE_ACCESS_TOKEN).toBe('tok-b');
+  });
+
+  it('no pages: names the permissions that were not granted', async () => {
+    await saveApp();
+    stubMeta([
+      ...pagesRoutes([]),
+      [/\/me\/businesses/, () => json({ data: [] })],
+      [/\/me\/permissions/, () => json({ data: [{ permission: 'pages_messaging', status: 'granted' }, { permission: 'pages_show_list', status: 'declined' }] })],
+    ]);
+    const state = await createOAuthState(env as never, { p: 'facebook', u: 'a1', r: RETURN_TO });
+    const res = await createApp().fetch(new Request(`${API}/api/oauth/facebook/callback?code=c&state=${encodeURIComponent(state)}`), env);
+    const msg = new URL(res.headers.get('Location')!).searchParams.get('message')!;
+    expect(msg).toContain('pages_show_list');
+    expect(msg).not.toContain('pages_messaging');
+  });
+
   it('no pages: explains why', async () => {
     await saveApp();
     stubMeta(pagesRoutes([]));

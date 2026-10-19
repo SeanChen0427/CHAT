@@ -26,15 +26,15 @@ function jr(t, e, n, r, o = []) {
 	let i = qe(e) ?? qe(n);
 	return i ? i === a || o.includes(i) : !1;
 }
-function ke(t) {
+function Ee(t) {
 	return (t ?? "")
 		.split(",")
 		.map((e) => qe(e.trim()))
 		.filter((e) => !!e);
 }
-function O() {
+function N() {
 	return qr(async (t, e) =>
-		jr(t.req.method, t.req.header("Origin"), t.req.header("Referer"), t.req.url, ke(t.env.ADMIN_ORIGINS)) ? e() : t.json({ error: "CSRF 檢查失敗" }, 403),
+		jr(t.req.method, t.req.header("Origin"), t.req.header("Referer"), t.req.url, Ee(t.env.ADMIN_ORIGINS)) ? e() : t.json({ error: "CSRF 檢查失敗" }, 403),
 	);
 }
 import { Hono as fo } from "npm:hono@4.12.32";
@@ -45,45 +45,45 @@ import { createMiddleware as aa } from "npm:hono@4.12.32/factory";
 var He = {};
 Kr(He, {
 	PLATFORMS: () => Gr,
-	adminUsers: () => L,
-	apiAttempts: () => K,
-	appConfig: () => se,
+	adminUsers: () => q,
+	apiAttempts: () => H,
+	appConfig: () => le,
 	auditLogs: () => Y,
-	automationKeywords: () => N,
-	automationRuns: () => g,
+	automationKeywords: () => U,
+	automationRuns: () => y,
 	automations: () => f,
 	contactAutomations: () => W,
-	contacts: () => h,
-	eventJobs: () => x,
-	instagramAccounts: () => y,
+	contacts: () => b,
+	eventJobs: () => P,
+	instagramAccounts: () => w,
 	instagramMedia: () => _,
 	loginRateLimits: () => X,
-	publicReplyVariants: () => te,
-	sendCounters: () => Z,
-	systemSettings: () => H,
-	webhookEvents: () => C,
+	publicReplyVariants: () => re,
+	sendCounters: () => ee,
+	systemSettings: () => j,
+	webhookEvents: () => D,
 });
-import { pgTable as $, text as d, integer as T, uniqueIndex as Re, index as Q } from "npm:drizzle-orm@0.45.2/pg-core";
-var b = () => new Date().toISOString(),
-	L = $("admin_users", {
+import { pgTable as K, text as d, integer as C, uniqueIndex as Re, index as Q } from "npm:drizzle-orm@0.45.2/pg-core";
+var E = () => new Date().toISOString(),
+	q = K("admin_users", {
 		id: d("id").primaryKey(),
 		email: d("email").notNull().unique(),
 		passwordHash: d("password_hash").notNull(),
-		createdAt: d("created_at").notNull().$defaultFn(b),
-		updatedAt: d("updated_at").notNull().$defaultFn(b),
+		createdAt: d("created_at").notNull().$defaultFn(E),
+		updatedAt: d("updated_at").notNull().$defaultFn(E),
 	}),
-	H = $("system_settings", {
+	j = K("system_settings", {
 		id: d("id").primaryKey(),
-		emergencyStop: T("emergency_stop").notNull().default(0),
-		maxPublicRepliesPerMinute: T("max_public_replies_per_minute"),
-		maxPrivateRepliesPerMinute: T("max_private_replies_per_minute"),
-		maxPublicRepliesPerDay: T("max_public_replies_per_day"),
-		maxPrivateRepliesPerDay: T("max_private_replies_per_day"),
-		createdAt: d("created_at").notNull().$defaultFn(b),
-		updatedAt: d("updated_at").notNull().$defaultFn(b),
+		emergencyStop: C("emergency_stop").notNull().default(0),
+		maxPublicRepliesPerMinute: C("max_public_replies_per_minute"),
+		maxPrivateRepliesPerMinute: C("max_private_replies_per_minute"),
+		maxPublicRepliesPerDay: C("max_public_replies_per_day"),
+		maxPrivateRepliesPerDay: C("max_private_replies_per_day"),
+		createdAt: d("created_at").notNull().$defaultFn(E),
+		updatedAt: d("updated_at").notNull().$defaultFn(E),
 	}),
 	Gr = ["instagram", "facebook"],
-	y = $("instagram_accounts", {
+	w = K("instagram_accounts", {
 		id: d("id").primaryKey(),
 		instagramAccountId: d("instagram_account_id").notNull().unique(),
 		platform: d("platform").notNull().default("instagram"),
@@ -93,20 +93,20 @@ var b = () => new Date().toISOString(),
 		tokenExpiresAt: d("token_expires_at"),
 		accessToken: d("access_token"),
 		tokenRefreshedAt: d("token_refreshed_at"),
-		webhookSubscribed: T("webhook_subscribed").notNull().default(0),
-		automationEnabled: T("automation_enabled").notNull().default(1),
+		webhookSubscribed: C("webhook_subscribed").notNull().default(0),
+		automationEnabled: C("automation_enabled").notNull().default(1),
 		circuitBreakerStatus: d("circuit_breaker_status").notNull().default("closed"),
 		lastWebhookReceivedAt: d("last_webhook_received_at"),
-		createdAt: d("created_at").notNull().$defaultFn(b),
-		updatedAt: d("updated_at").notNull().$defaultFn(b),
+		createdAt: d("created_at").notNull().$defaultFn(E),
+		updatedAt: d("updated_at").notNull().$defaultFn(E),
 	}),
-	_ = $(
+	_ = K(
 		"instagram_media",
 		{
 			id: d("id").primaryKey(),
 			instagramAccountId: d("instagram_account_id")
 				.notNull()
-				.references(() => y.id),
+				.references(() => w.id),
 			instagramMediaId: d("instagram_media_id").notNull().unique(),
 			platform: d("platform").notNull().default("instagram"),
 			mediaType: d("media_type").notNull(),
@@ -116,12 +116,12 @@ var b = () => new Date().toISOString(),
 			publishedAt: d("published_at"),
 			lastSyncedAt: d("last_synced_at"),
 			deletedAt: d("deleted_at"),
-			createdAt: d("created_at").notNull().$defaultFn(b),
-			updatedAt: d("updated_at").notNull().$defaultFn(b),
+			createdAt: d("created_at").notNull().$defaultFn(E),
+			updatedAt: d("updated_at").notNull().$defaultFn(E),
 		},
 		(t) => [Q("idx_media_account").on(t.instagramAccountId)],
 	),
-	f = $("automations", {
+	f = K("automations", {
 		id: d("id").primaryKey(),
 		instagramMediaId: d("instagram_media_id")
 			.unique()
@@ -131,26 +131,26 @@ var b = () => new Date().toISOString(),
 		name: d("name").notNull(),
 		status: d("status").notNull().default("draft"),
 		matchType: d("match_type").notNull().default("contains_any"),
-		publicReplyEnabled: T("public_reply_enabled").notNull().default(1),
-		privateReplyEnabled: T("private_reply_enabled").notNull().default(1),
+		publicReplyEnabled: C("public_reply_enabled").notNull().default(1),
+		privateReplyEnabled: C("private_reply_enabled").notNull().default(1),
 		openingDm: d("opening_dm"),
 		buttonText: d("button_text"),
 		buttonUrl: d("button_url"),
-		dailyLimit: T("daily_limit"),
-		excludeOwnComments: T("exclude_own_comments").notNull().default(1),
-		followGateEnabled: T("follow_gate_enabled").notNull().default(0),
+		dailyLimit: C("daily_limit"),
+		excludeOwnComments: C("exclude_own_comments").notNull().default(1),
+		followGateEnabled: C("follow_gate_enabled").notNull().default(0),
 		notFollowingText: d("not_following_text"),
 		recheckButtonText: d("recheck_button_text"),
-		emailCaptureEnabled: T("email_capture_enabled").notNull().default(0),
+		emailCaptureEnabled: C("email_capture_enabled").notNull().default(0),
 		emailPromptText: d("email_prompt_text"),
 		claimButtonText: d("claim_button_text"),
 		deliveryText: d("delivery_text"),
 		tag: d("tag"),
-		oncePerContact: T("once_per_contact").notNull().default(0),
-		createdAt: d("created_at").notNull().$defaultFn(b),
-		updatedAt: d("updated_at").notNull().$defaultFn(b),
+		oncePerContact: C("once_per_contact").notNull().default(0),
+		createdAt: d("created_at").notNull().$defaultFn(E),
+		updatedAt: d("updated_at").notNull().$defaultFn(E),
 	}),
-	h = $(
+	b = K(
 		"contacts",
 		{
 			igsid: d("igsid").primaryKey(),
@@ -159,49 +159,49 @@ var b = () => new Date().toISOString(),
 			name: d("name"),
 			email: d("email"),
 			tags: d("tags").notNull().default("[]"),
-			isFollower: T("is_follower"),
+			isFollower: C("is_follower"),
 			state: d("state"),
-			firstSeenAt: d("first_seen_at").notNull().$defaultFn(b),
-			lastSeenAt: d("last_seen_at").notNull().$defaultFn(b),
-			createdAt: d("created_at").notNull().$defaultFn(b),
-			updatedAt: d("updated_at").notNull().$defaultFn(b),
+			firstSeenAt: d("first_seen_at").notNull().$defaultFn(E),
+			lastSeenAt: d("last_seen_at").notNull().$defaultFn(E),
+			createdAt: d("created_at").notNull().$defaultFn(E),
+			updatedAt: d("updated_at").notNull().$defaultFn(E),
 		},
 		(t) => [Q("idx_contacts_last_seen").on(t.lastSeenAt)],
 	),
-	W = $(
+	W = K(
 		"contact_automations",
 		{
 			id: d("id").primaryKey(),
 			igsid: d("igsid").notNull(),
 			automationId: d("automation_id").notNull(),
-			firstTriggeredAt: d("first_triggered_at").notNull().$defaultFn(b),
+			firstTriggeredAt: d("first_triggered_at").notNull().$defaultFn(E),
 			deliveredAt: d("delivered_at"),
 		},
 		(t) => [Re("contact_automations_igsid_automation_unique").on(t.igsid, t.automationId), Q("idx_contact_automations_automation").on(t.automationId)],
 	),
-	N = $(
+	U = K(
 		"automation_keywords",
 		{
 			id: d("id").primaryKey(),
 			automationId: d("automation_id").notNull(),
 			keyword: d("keyword").notNull(),
 			normalizedKeyword: d("normalized_keyword").notNull(),
-			createdAt: d("created_at").notNull().$defaultFn(b),
+			createdAt: d("created_at").notNull().$defaultFn(E),
 		},
 		(t) => [
 			Re("automation_keywords_automation_id_normalized_keyword_unique").on(t.automationId, t.normalizedKeyword),
 			Q("idx_keywords_automation").on(t.automationId),
 		],
 	),
-	te = $("public_reply_variants", {
+	re = K("public_reply_variants", {
 		id: d("id").primaryKey(),
 		automationId: d("automation_id").notNull(),
 		message: d("message").notNull(),
-		enabled: T("enabled").notNull().default(1),
-		createdAt: d("created_at").notNull().$defaultFn(b),
-		updatedAt: d("updated_at").notNull().$defaultFn(b),
+		enabled: C("enabled").notNull().default(1),
+		createdAt: d("created_at").notNull().$defaultFn(E),
+		updatedAt: d("updated_at").notNull().$defaultFn(E),
 	}),
-	C = $(
+	D = K(
 		"webhook_events",
 		{
 			id: d("id").primaryKey(),
@@ -211,21 +211,21 @@ var b = () => new Date().toISOString(),
 			instagramMediaId: d("instagram_media_id"),
 			instagramCommentId: d("instagram_comment_id"),
 			rawPayload: d("raw_payload").notNull(),
-			signatureValid: T("signature_valid").notNull(),
+			signatureValid: C("signature_valid").notNull(),
 			status: d("status").notNull().default("received"),
-			duplicateCount: T("duplicate_count").notNull().default(0),
-			receivedAt: d("received_at").notNull().$defaultFn(b),
-			lastReceivedAt: d("last_received_at").notNull().$defaultFn(b),
+			duplicateCount: C("duplicate_count").notNull().default(0),
+			receivedAt: d("received_at").notNull().$defaultFn(E),
+			lastReceivedAt: d("last_received_at").notNull().$defaultFn(E),
 			processedAt: d("processed_at"),
 		},
 		(t) => [Q("idx_webhook_comment").on(t.instagramCommentId), Q("idx_webhook_received").on(t.receivedAt)],
 	),
-	g = $(
+	y = K(
 		"automation_runs",
 		{
 			id: d("id").primaryKey(),
 			automationId: d("automation_id").notNull(),
-			webhookEventId: d("webhook_event_id").references(() => C.id),
+			webhookEventId: d("webhook_event_id").references(() => D.id),
 			instagramCommentId: d("instagram_comment_id").notNull(),
 			instagramMediaId: d("instagram_media_id").notNull(),
 			commenterId: d("commenter_id"),
@@ -237,11 +237,11 @@ var b = () => new Date().toISOString(),
 			publicReplyMessage: d("public_reply_message"),
 			publicReplyStatus: d("public_reply_status"),
 			privateReplyStatus: d("private_reply_status"),
-			retryCount: T("retry_count").notNull().default(0),
+			retryCount: C("retry_count").notNull().default(0),
 			startedAt: d("started_at"),
 			completedAt: d("completed_at"),
-			createdAt: d("created_at").notNull().$defaultFn(b),
-			updatedAt: d("updated_at").notNull().$defaultFn(b),
+			createdAt: d("created_at").notNull().$defaultFn(E),
+			updatedAt: d("updated_at").notNull().$defaultFn(E),
 		},
 		(t) => [
 			Re("automation_runs_automation_id_instagram_comment_id_unique").on(t.automationId, t.instagramCommentId),
@@ -250,14 +250,14 @@ var b = () => new Date().toISOString(),
 			Q("idx_runs_media").on(t.instagramMediaId),
 		],
 	),
-	K = $(
+	H = K(
 		"api_attempts",
 		{
 			id: d("id").primaryKey(),
 			automationRunId: d("automation_run_id").notNull(),
 			actionType: d("action_type").notNull(),
-			attemptNumber: T("attempt_number").notNull(),
-			httpStatus: T("http_status"),
+			attemptNumber: C("attempt_number").notNull(),
+			httpStatus: C("http_status"),
 			failureReason: d("failure_reason"),
 			metaErrorCode: d("meta_error_code"),
 			metaErrorSubcode: d("meta_error_subcode"),
@@ -265,12 +265,12 @@ var b = () => new Date().toISOString(),
 			metaTraceId: d("meta_trace_id"),
 			requestPayloadRedacted: d("request_payload_redacted"),
 			responsePayloadRedacted: d("response_payload_redacted"),
-			startedAt: d("started_at").notNull().$defaultFn(b),
+			startedAt: d("started_at").notNull().$defaultFn(E),
 			completedAt: d("completed_at"),
 		},
 		(t) => [Q("idx_attempts_run").on(t.automationRunId)],
 	),
-	Y = $("audit_logs", {
+	Y = K("audit_logs", {
 		id: d("id").primaryKey(),
 		adminUserId: d("admin_user_id"),
 		action: d("action").notNull(),
@@ -278,47 +278,47 @@ var b = () => new Date().toISOString(),
 		entityId: d("entity_id"),
 		metadata: d("metadata"),
 		ipAddress: d("ip_address"),
-		createdAt: d("created_at").notNull().$defaultFn(b),
+		createdAt: d("created_at").notNull().$defaultFn(E),
 	}),
-	X = $(
+	X = K(
 		"login_rate_limits",
 		{
 			id: d("id").primaryKey(),
 			ipAddress: d("ip_address").notNull(),
 			windowStart: d("window_start").notNull(),
-			attemptCount: T("attempt_count").notNull().default(0),
-			createdAt: d("created_at").notNull().$defaultFn(b),
-			updatedAt: d("updated_at").notNull().$defaultFn(b),
+			attemptCount: C("attempt_count").notNull().default(0),
+			createdAt: d("created_at").notNull().$defaultFn(E),
+			updatedAt: d("updated_at").notNull().$defaultFn(E),
 		},
 		(t) => [Q("idx_login_rate_limits_ip").on(t.ipAddress), Re("login_rate_limits_ip_window_unique").on(t.ipAddress, t.windowStart)],
 	),
-	Z = $(
+	ee = K(
 		"send_counters",
 		{
 			id: d("id").primaryKey(),
 			scopeKey: d("scope_key").notNull(),
 			windowStart: d("window_start").notNull(),
-			count: T("count").notNull().default(0),
-			createdAt: d("created_at").notNull().$defaultFn(b),
-			updatedAt: d("updated_at").notNull().$defaultFn(b),
+			count: C("count").notNull().default(0),
+			createdAt: d("created_at").notNull().$defaultFn(E),
+			updatedAt: d("updated_at").notNull().$defaultFn(E),
 		},
 		(t) => [Re("send_counters_scope_window_unique").on(t.scopeKey, t.windowStart)],
 	),
-	x = $(
+	P = K(
 		"event_jobs",
 		{
 			id: d("id").primaryKey(),
 			message: d("message").notNull(),
 			status: d("status").notNull().default("pending"),
-			attempts: T("attempts").notNull().default(0),
-			nextRunAt: d("next_run_at").notNull().$defaultFn(b),
+			attempts: C("attempts").notNull().default(0),
+			nextRunAt: d("next_run_at").notNull().$defaultFn(E),
 			lastError: d("last_error"),
-			createdAt: d("created_at").notNull().$defaultFn(b),
-			updatedAt: d("updated_at").notNull().$defaultFn(b),
+			createdAt: d("created_at").notNull().$defaultFn(E),
+			updatedAt: d("updated_at").notNull().$defaultFn(E),
 		},
 		(t) => [Q("idx_event_jobs_due").on(t.status, t.nextRunAt)],
 	),
-	se = $("app_config", { key: d("key").primaryKey(), value: d("value").notNull(), updatedAt: d("updated_at").notNull().$defaultFn(b) });
+	le = K("app_config", { key: d("key").primaryKey(), value: d("value").notNull(), updatedAt: d("updated_at").notNull().$defaultFn(E) });
 var Vt = "SHA-256";
 var Wt = new TextEncoder();
 function jt(t) {
@@ -412,7 +412,7 @@ function Ge() {
 		return (await Zr(t.env.DB, n)) ? e() : t.json({ error: "登入嘗試次數過多，請稍後再試。" }, 429);
 	});
 }
-function U() {
+function B() {
 	return Xt(async (t, e) => {
 		let n = t.get("adminUserId") ?? z(t.req) ?? "anonymous";
 		try {
@@ -492,7 +492,7 @@ function rn() {
 	return `${We}=; HttpOnly; Secure; SameSite=Strict; Path=/; Max-Age=0`;
 }
 var Je = 3600 * 8;
-async function ce(t, e) {
+async function de(t, e) {
 	try {
 		await t.DB.insert(Y).values({
 			id: crypto.randomUUID(),
@@ -520,10 +520,10 @@ function an() {
 	let t = new na();
 	return (
 		t.get("/setup-status", async (e) => {
-			let r = await e.env.DB.select({ id: L.id }).from(L).limit(1);
+			let r = await e.env.DB.select({ id: q.id }).from(q).limit(1);
 			return e.json({ needsSetup: r.length === 0 });
 		}),
-		t.post("/setup", O(), Ge(), async (e) => {
+		t.post("/setup", N(), Ge(), async (e) => {
 			let n = z(e.req),
 				r;
 			try {
@@ -537,8 +537,8 @@ function an() {
 			if (a.length < Ye) return e.json({ error: `密碼長度至少需要 ${Ye} 個字元` }, 400);
 			if (a.length > Xe) return e.json({ error: `密碼長度不可超過 ${Xe} 個字元` }, 400);
 			let i = e.env.DB;
-			if ((await i.select({ id: L.id }).from(L).limit(1)).length > 0)
-				return (await ce(e.env, { adminUserId: null, action: "admin.setup.rejected", ipAddress: n }), e.json({ error: "系統已完成初始設定" }, 403));
+			if ((await i.select({ id: q.id }).from(q).limit(1)).length > 0)
+				return (await de(e.env, { adminUserId: null, action: "admin.setup.rejected", ipAddress: n }), e.json({ error: "系統已完成初始設定" }, 403));
 			let c = crypto.randomUUID(),
 				u = await je(a),
 				l = new Date().toISOString();
@@ -548,24 +548,24 @@ function an() {
       SELECT ${c}, ${o}, ${u}, ${l}, ${l}
       WHERE NOT EXISTS (SELECT 1 FROM admin_users)
     `),
-				!(await i.select().from(L).where(xe(L.id, c)).limit(1))[0])
+				!(await i.select().from(q).where(xe(q.id, c)).limit(1))[0])
 			)
-				return (await ce(e.env, { adminUserId: null, action: "admin.setup.rejected", ipAddress: n }), e.json({ error: "系統已完成初始設定" }, 403));
+				return (await de(e.env, { adminUserId: null, action: "admin.setup.rejected", ipAddress: n }), e.json({ error: "系統已完成初始設定" }, 403));
 			let m = await Te(e.env.ADMIN_SESSION_SECRET, c, Je);
 			return (
 				e.header("Set-Cookie", It(m, Je)),
-				await ce(e.env, { adminUserId: c, action: "admin.setup.success", ipAddress: n }),
+				await de(e.env, { adminUserId: c, action: "admin.setup.success", ipAddress: n }),
 				e.json({ ok: !0, token: m })
 			);
 		}),
-		t.get("/me", J(), U(), async (e) => {
-			let r = await e.env.DB.select({ email: L.email })
-				.from(L)
-				.where(xe(L.id, e.get("adminUserId")))
+		t.get("/me", J(), B(), async (e) => {
+			let r = await e.env.DB.select({ email: q.email })
+				.from(q)
+				.where(xe(q.id, e.get("adminUserId")))
 				.limit(1);
 			return r[0] ? e.json({ email: r[0].email }) : e.json({ error: "未授權" }, 401);
 		}),
-		t.post("/change-password", O(), J(), Ge(), async (e) => {
+		t.post("/change-password", N(), J(), Ge(), async (e) => {
 			let n = z(e.req),
 				r;
 			try {
@@ -580,19 +580,19 @@ function an() {
 			if (a.length > Xe) return e.json({ error: `新密碼長度不可超過 ${Xe} 個字元` }, 400);
 			let i = e.env.DB,
 				s = e.get("adminUserId"),
-				u = (await i.select().from(L).where(xe(L.id, s)).limit(1))[0];
+				u = (await i.select().from(q).where(xe(q.id, s)).limit(1))[0];
 			return u
 				? (await St(o, u.passwordHash))
 					? (await i
-							.update(L)
+							.update(q)
 							.set({ passwordHash: await je(a), updatedAt: new Date().toISOString() })
-							.where(xe(L.id, s)),
-						await ce(e.env, { adminUserId: s, action: "admin.password.change.success", ipAddress: n }),
+							.where(xe(q.id, s)),
+						await de(e.env, { adminUserId: s, action: "admin.password.change.success", ipAddress: n }),
 						e.json({ ok: !0 }))
-					: (await ce(e.env, { adminUserId: s, action: "admin.password.change.failure", ipAddress: n }), e.json({ error: "目前密碼不正確" }, 400))
+					: (await de(e.env, { adminUserId: s, action: "admin.password.change.failure", ipAddress: n }), e.json({ error: "目前密碼不正確" }, 400))
 				: e.json({ error: "未授權" }, 401);
 		}),
-		t.post("/login", O(), Ge(), async (e) => {
+		t.post("/login", N(), Ge(), async (e) => {
 			let n = z(e.req),
 				r;
 			try {
@@ -603,29 +603,29 @@ function an() {
 			let o = typeof r.email == "string" ? r.email : "",
 				a = typeof r.password == "string" ? r.password : "";
 			if (!o || !a) return e.json({ error: "請輸入 Email 與密碼" }, 400);
-			let c = (await e.env.DB.select().from(L).where(xe(L.email, o)).limit(1))[0],
+			let c = (await e.env.DB.select().from(q).where(xe(q.email, o)).limit(1))[0],
 				u = c ? c.passwordHash : await Jt(),
 				l = await St(a, u);
 			if (!c || !l)
-				return (await ce(e.env, { adminUserId: c ? c.id : null, action: "admin.login.failure", ipAddress: n }), e.json({ error: "Email 或密碼錯誤" }, 401));
+				return (await de(e.env, { adminUserId: c ? c.id : null, action: "admin.login.failure", ipAddress: n }), e.json({ error: "Email 或密碼錯誤" }, 401));
 			let p = await Te(e.env.ADMIN_SESSION_SECRET, c.id, Je);
 			return (
 				e.header("Set-Cookie", It(p, Je)),
-				await ce(e.env, { adminUserId: c.id, action: "admin.login.success", ipAddress: n }),
+				await de(e.env, { adminUserId: c.id, action: "admin.login.success", ipAddress: n }),
 				e.json({ ok: !0, token: p })
 			);
 		}),
-		t.post("/logout", O(), J(), U(), async (e) => {
+		t.post("/logout", N(), J(), B(), async (e) => {
 			let n = z(e.req);
-			return (e.header("Set-Cookie", rn()), await ce(e.env, { adminUserId: e.get("adminUserId"), action: "admin.logout", ipAddress: n }), e.json({ ok: !0 }));
+			return (e.header("Set-Cookie", rn()), await de(e.env, { adminUserId: e.get("adminUserId"), action: "admin.logout", ipAddress: n }), e.json({ ok: !0 }));
 		}),
 		t
 	);
 }
-import { and as la, eq as B } from "npm:drizzle-orm@0.45.2";
+import { and as la, eq as F } from "npm:drizzle-orm@0.45.2";
 import { Hono as ca } from "npm:hono@4.12.32";
 import { toSimplified as ia } from "npm:chinese-simple2traditional@2.3.2";
-function de(t) {
+function ue(t) {
 	let e = t.replace(/[！-～]/g, (n) => String.fromCharCode(n.charCodeAt(0) - 65248));
 	return ((e = e.replace(/\u3000/g, " ")), (e = e.toLowerCase()), (e = ia(e)), (e = e.replace(/\s+/g, " ")), e.trim());
 }
@@ -637,7 +637,7 @@ function sa(t) {
 		return !1;
 	}
 }
-var Et = ["contains_any", "exact_any", "all_comments"];
+var kt = ["contains_any", "exact_any", "all_comments"];
 function on(t) {
 	let e = [];
 	(t.automationExists || e.push("automation_not_found"), t.matchType !== "all_comments" && t.keywordCount < 1 && e.push("keywords_required"));
@@ -675,21 +675,21 @@ function Qe(t) {
 	return Array.isArray(t) ? t.filter((e) => typeof e == "string" && e.trim().length > 0) : [];
 }
 async function cn(t, e, n) {
-	await t.delete(N).where(B(N.automationId, e));
+	await t.delete(U).where(F(U.automationId, e));
 	let r = new Set();
 	for (let o of n) {
-		let a = de(o);
-		!a || r.has(a) || (r.add(a), await t.insert(N).values({ id: crypto.randomUUID(), automationId: e, keyword: o, normalizedKeyword: a }));
+		let a = ue(o);
+		!a || r.has(a) || (r.add(a), await t.insert(U).values({ id: crypto.randomUUID(), automationId: e, keyword: o, normalizedKeyword: a }));
 	}
 }
 async function dn(t, e, n) {
-	await t.delete(te).where(B(te.automationId, e));
-	for (let r of n.slice(0, 5)) await t.insert(te).values({ id: crypto.randomUUID(), automationId: e, message: r, enabled: 1 });
+	await t.delete(re).where(F(re.automationId, e));
+	for (let r of n.slice(0, 5)) await t.insert(re).values({ id: crypto.randomUUID(), automationId: e, message: r, enabled: 1 });
 }
 function un() {
 	let t = new ca();
 	return (
-		t.use("*", O(), J(), U()),
+		t.use("*", N(), J(), B()),
 		t.post("/", async (e) => {
 			let n;
 			try {
@@ -700,13 +700,13 @@ function un() {
 			let r = da.includes(n.applyScope) ? n.applyScope : "media";
 			if (!n.name || (r === "media" && !n.instagramMediaId)) return e.json({ error: "缺少必要欄位" }, 400);
 			let o = n.matchType ?? "contains_any";
-			if (!Et.includes(o)) return e.json({ error: "比對模式無效" }, 400);
+			if (!kt.includes(o)) return e.json({ error: "比對模式無效" }, 400);
 			let a = e.env.DB;
-			if (r === "media" && (await a.select().from(_).where(B(_.id, n.instagramMediaId)).limit(1)).length === 0) return e.json({ error: "貼文不存在" }, 404);
+			if (r === "media" && (await a.select().from(_).where(F(_.id, n.instagramMediaId)).limit(1)).length === 0) return e.json({ error: "貼文不存在" }, 404);
 			let i = sn(n.platform);
 			if (
 				r === "account_default" &&
-				(await a.select().from(f).where(B(f.applyScope, "account_default"))).find((l) => l.platform == null || i == null || l.platform === i)
+				(await a.select().from(f).where(F(f.applyScope, "account_default"))).find((l) => l.platform == null || i == null || l.platform === i)
 			)
 				return e.json({ error: "這個平台已有全帳號預設自動化，請編輯既有的那一組" }, 409);
 			let s = crypto.randomUUID();
@@ -738,31 +738,31 @@ function un() {
 			let n = e.env.DB,
 				r = await n.select().from(f),
 				o = await n.select().from(_),
-				a = await n.select().from(g),
-				i = await n.select().from(N),
+				a = await n.select().from(y),
+				i = await n.select().from(U),
 				s = await n.select().from(W),
 				c = new Map(o.map((l) => [l.id, l])),
 				u = r
 					.filter((l) => !(l.instagramMediaId ? c.get(l.instagramMediaId) : void 0)?.deletedAt)
 					.map((l) => {
 						let p = l.instagramMediaId ? c.get(l.instagramMediaId) : void 0,
-							m = a.filter((w) => w.automationId === l.id);
+							m = a.filter((g) => g.automationId === l.id);
 						return {
 							automationId: l.id,
 							name: l.name,
 							status: l.status,
 							applyScope: l.applyScope,
 							matchType: l.matchType,
-							keywordCount: i.filter((w) => w.automationId === l.id).length,
+							keywordCount: i.filter((g) => g.automationId === l.id).length,
 							media: p
 								? { id: p.id, platform: p.platform, mediaType: p.mediaType, caption: p.caption, thumbnailUrl: p.thumbnailUrl, permalink: p.permalink }
 								: null,
 							stats: {
 								triggered: m.length,
-								publicReplySuccess: m.filter((w) => w.publicReplyStatus === "success").length,
-								dmSuccess: m.filter((w) => w.privateReplyStatus === "success").length,
-								failures: m.filter((w) => w.status === "completed_with_errors").length,
-								delivered: s.filter((w) => w.automationId === l.id && w.deliveredAt).length,
+								publicReplySuccess: m.filter((g) => g.publicReplyStatus === "success").length,
+								dmSuccess: m.filter((g) => g.privateReplyStatus === "success").length,
+								failures: m.filter((g) => g.status === "completed_with_errors").length,
+								delivered: s.filter((g) => g.automationId === l.id && g.deliveredAt).length,
 							},
 							gated: l.followGateEnabled === 1 || l.emailCaptureEnabled === 1,
 							platform: p ? p.platform : l.platform,
@@ -778,11 +778,11 @@ function un() {
 		t.get("/:id", async (e) => {
 			let n = e.req.param("id"),
 				r = e.env.DB,
-				o = await r.select().from(f).where(B(f.id, n)).limit(1);
+				o = await r.select().from(f).where(F(f.id, n)).limit(1);
 			if (o.length === 0) return e.json({ error: "自動化不存在" }, 404);
-			let a = await r.select().from(N).where(B(N.automationId, n)),
-				i = await r.select().from(te).where(B(te.automationId, n)),
-				s = o[0].instagramMediaId ? ((await r.select().from(_).where(B(_.id, o[0].instagramMediaId)).limit(1))[0] ?? null) : null;
+			let a = await r.select().from(U).where(F(U.automationId, n)),
+				i = await r.select().from(re).where(F(re.automationId, n)),
+				s = o[0].instagramMediaId ? ((await r.select().from(_).where(F(_.id, o[0].instagramMediaId)).limit(1))[0] ?? null) : null;
 			return e.json({
 				automation: o[0],
 				media: s ? { id: s.id, platform: s.platform, mediaType: s.mediaType, caption: s.caption, thumbnailUrl: s.thumbnailUrl } : null,
@@ -799,12 +799,12 @@ function un() {
 				return e.json({ error: "請求格式錯誤" }, 400);
 			}
 			let o = e.env.DB,
-				a = await o.select().from(f).where(B(f.id, n)).limit(1);
+				a = await o.select().from(f).where(F(f.id, n)).limit(1);
 			if (a.length === 0) return e.json({ error: "自動化不存在" }, 404);
 			let i = { updatedAt: new Date().toISOString() };
 			return (
 				typeof r.name == "string" && (i.name = r.name),
-				r.matchType && Et.includes(r.matchType) && (i.matchType = r.matchType),
+				r.matchType && kt.includes(r.matchType) && (i.matchType = r.matchType),
 				typeof r.publicReplyEnabled == "boolean" && (i.publicReplyEnabled = r.publicReplyEnabled ? 1 : 0),
 				typeof r.privateReplyEnabled == "boolean" && (i.privateReplyEnabled = r.privateReplyEnabled ? 1 : 0),
 				r.openingDm !== void 0 && (i.openingDm = r.openingDm),
@@ -813,7 +813,7 @@ function un() {
 				typeof r.dailyLimit == "number" && (i.dailyLimit = r.dailyLimit),
 				Object.assign(i, ln(r)),
 				r.platform !== void 0 && a[0].applyScope !== "media" && a[0].applyScope !== "account_default" && (i.platform = sn(r.platform)),
-				await o.update(f).set(i).where(B(f.id, n)),
+				await o.update(f).set(i).where(F(f.id, n)),
 				r.keywords !== void 0 && (await cn(o, n, Qe(r.keywords))),
 				r.publicReplyVariants !== void 0 && (await dn(o, n, Qe(r.publicReplyVariants))),
 				e.json({ ok: !0 })
@@ -822,18 +822,18 @@ function un() {
 		t.post("/:id/activate", async (e) => {
 			let n = e.req.param("id"),
 				r = e.env.DB,
-				a = (await r.select().from(f).where(B(f.id, n)).limit(1))[0],
-				i = a ? await r.select().from(N).where(B(N.automationId, n)) : [],
-				s = await r.select().from(H).limit(1),
+				a = (await r.select().from(f).where(F(f.id, n)).limit(1))[0],
+				i = a ? await r.select().from(U).where(F(U.automationId, n)) : [],
+				s = await r.select().from(j).limit(1),
 				c = !0,
 				u = null;
 			if (a) {
-				a.instagramMediaId && (u = (await r.select().from(_).where(B(_.id, a.instagramMediaId)).limit(1))[0] ?? null);
+				a.instagramMediaId && (u = (await r.select().from(_).where(F(_.id, a.instagramMediaId)).limit(1))[0] ?? null);
 				let p = u
-					? await r.select().from(y).where(B(y.id, u.instagramAccountId)).limit(1)
+					? await r.select().from(w).where(F(w.id, u.instagramAccountId)).limit(1)
 					: a.platform
-						? await r.select().from(y).where(B(y.platform, a.platform)).limit(1)
-						: await r.select().from(y).limit(1);
+						? await r.select().from(w).where(F(w.platform, a.platform)).limit(1)
+						: await r.select().from(w).limit(1);
 				p[0] && (c = p[0].circuitBreakerStatus === "closed");
 			}
 			let l = on({
@@ -853,17 +853,17 @@ function un() {
 			});
 			return l.length > 0
 				? e.json({ error: "activation_failed", reasons: l }, 422)
-				: (await r.update(f).set({ status: "active", updatedAt: new Date().toISOString() }).where(B(f.id, n)), e.json({ ok: !0 }));
+				: (await r.update(f).set({ status: "active", updatedAt: new Date().toISOString() }).where(F(f.id, n)), e.json({ ok: !0 }));
 		}),
 		t.post("/:id/pause", async (e) => {
 			let n = e.req.param("id"),
 				r = e.env.DB;
-			return (await r.select().from(f).where(B(f.id, n)).limit(1)).length === 0
+			return (await r.select().from(f).where(F(f.id, n)).limit(1)).length === 0
 				? e.json({ error: "自動化不存在" }, 404)
 				: (await r
 						.update(f)
 						.set({ status: "paused", updatedAt: new Date().toISOString() })
-						.where(la(B(f.id, n))),
+						.where(la(F(f.id, n))),
 					e.json({ ok: !0 }));
 		}),
 		t
@@ -876,8 +876,8 @@ var ga = ["INSTAGRAM_APP_ID", "INSTAGRAM_APP_SECRET", "META_APP_ID", "META_APP_S
 async function Ce(t, e) {
 	let n = await t
 		.select()
-		.from(se)
-		.where(fa(se.key, [...e]));
+		.from(le)
+		.where(fa(le.key, [...e]));
 	return Object.fromEntries(n.filter((r) => r.value !== "").map((r) => [r.key, r.value]));
 }
 async function pe(t, e) {
@@ -885,13 +885,13 @@ async function pe(t, e) {
 	for (let [r, o] of Object.entries(e))
 		if (o !== void 0) {
 			if (o === null || o === "") {
-				await t.delete(se).where(pa(se.key, r));
+				await t.delete(le).where(pa(le.key, r));
 				continue;
 			}
 			await t
-				.insert(se)
+				.insert(le)
 				.values({ key: r, value: o, updatedAt: n })
-				.onConflictDoUpdate({ target: se.key, set: { value: o, updatedAt: n } });
+				.onConflictDoUpdate({ target: le.key, set: { value: o, updatedAt: n } });
 		}
 }
 async function Ze(t) {
@@ -968,14 +968,14 @@ var Ae = class {
 		return { ok: !1, status: a.status, failure: s };
 	}
 };
-import { and as wa, eq as kt } from "npm:drizzle-orm@0.45.2";
+import { and as wa, eq as Et } from "npm:drizzle-orm@0.45.2";
 var _a = 1440 * 60 * 1e3,
 	ha = 20,
 	Aa = 1200 * 60 * 1e3,
 	Sa = "https://graph.instagram.com/refresh_access_token";
 async function ba(t, e) {
 	return (
-		(await t.select({ accessToken: y.accessToken }).from(y).where(kt(y.platform, "instagram")).limit(1))[0]?.accessToken || e.INSTAGRAM_ACCOUNT_ACCESS_TOKEN
+		(await t.select({ accessToken: w.accessToken }).from(w).where(Et(w.platform, "instagram")).limit(1))[0]?.accessToken || e.INSTAGRAM_ACCOUNT_ACCESS_TOKEN
 	);
 }
 async function et(t, e) {
@@ -983,12 +983,12 @@ async function et(t, e) {
 }
 async function fn(t, e, n = {}) {
 	let r = n.nowMs ?? Date.now(),
-		o = n.fetchImpl ?? ((m, w) => fetch(m, w)),
+		o = n.fetchImpl ?? ((m, g) => fetch(m, g)),
 		a = (
 			await t
 				.select()
-				.from(y)
-				.where(wa(kt(y.platform, "instagram")))
+				.from(w)
+				.where(wa(Et(w.platform, "instagram")))
 				.limit(1)
 		)[0];
 	if (!a) return { refreshed: !1, reason: "no_account" };
@@ -1009,9 +1009,9 @@ async function fn(t, e, n = {}) {
 		p = new Date(r).toISOString();
 	return (
 		await t
-			.update(y)
+			.update(w)
 			.set({ accessToken: c.access_token, tokenExpiresAt: new Date(r + l * 1e3).toISOString(), tokenRefreshedAt: p, updatedAt: p })
-			.where(kt(y.id, a.id)),
+			.where(Et(w.id, a.id)),
 		await t
 			.insert(Y)
 			.values({
@@ -1040,10 +1040,10 @@ async function pn(t, e, n) {
 		{ refreshed: !1, reason: n }
 	);
 }
-var Ea = "v24.0";
+var ka = "v24.0";
 function ve(t) {
 	let e = t.FACEBOOK_PAGE_ACCESS_TOKEN?.trim();
-	return e ? new Ae({ accessToken: e, graphApiVersion: t.FACEBOOK_GRAPH_API_VERSION || Ea, baseUrl: "https://graph.facebook.com" }) : null;
+	return e ? new Ae({ accessToken: e, graphApiVersion: t.FACEBOOK_GRAPH_API_VERSION || ka, baseUrl: "https://graph.facebook.com" }) : null;
 }
 async function gn(t, e) {
 	return { metaClient: await et(t, e), facebookClient: ve(e) };
@@ -1051,21 +1051,21 @@ async function gn(t, e) {
 function tt(t, e) {
 	return e === "facebook" ? (t.facebookClient ?? null) : t.metaClient;
 }
-async function j(t, e) {
-	return (await t.select().from(y).where(Rt(y.platform, e)).limit(1))[0] ?? null;
+async function G(t, e) {
+	return (await t.select().from(w).where(Rt(w.platform, e)).limit(1))[0] ?? null;
 }
 async function yn(t, e, n) {
 	return (
 		(
 			await t
 				.select()
-				.from(y)
-				.where(Ia(Rt(y.instagramAccountId, e), Rt(y.platform, n)))
+				.from(w)
+				.where(Ia(Rt(w.instagramAccountId, e), Rt(w.platform, n)))
 				.limit(1)
-		)[0] ?? (await j(t, n))
+		)[0] ?? (await G(t, n))
 	);
 }
-var ka = "feed,messages,messaging_postbacks,messaging_referrals";
+var Ea = "feed,messages,messaging_postbacks,messaging_referrals";
 function Tt(t) {
 	let e = t.failure?.metaErrorMessage ? `｜Meta 回覆：(代碼 ${t.failure.metaErrorCode ?? "?"}) ${t.failure.metaErrorMessage}` : "";
 	return `HTTP ${t.status}${e}`;
@@ -1073,22 +1073,22 @@ function Tt(t) {
 async function _n(t, e) {
 	let n = await e.get("me", { fields: "id,name,picture{url}" });
 	if (!n.ok || !n.data?.id)
-		return { account: await j(t, "facebook"), error: `Facebook 粉專註冊失敗（${Tt(n)}）——請確認粉專存取權杖（FACEBOOK_PAGE_ACCESS_TOKEN）是否正確` };
+		return { account: await G(t, "facebook"), error: `Facebook 粉專註冊失敗（${Tt(n)}）——請確認粉專存取權杖（FACEBOOK_PAGE_ACCESS_TOKEN）是否正確` };
 	let r = new Date().toISOString(),
-		o = await j(t, "facebook");
+		o = await G(t, "facebook");
 	return (
 		o
 			? await t
-					.update(y)
+					.update(w)
 					.set({
 						instagramAccountId: n.data.id,
 						username: n.data.name ?? o.username,
 						profilePictureUrl: n.data.picture?.data?.url ?? o.profilePictureUrl,
 						updatedAt: r,
 					})
-					.where(wn(y.id, o.id))
+					.where(wn(w.id, o.id))
 			: await t
-					.insert(y)
+					.insert(w)
 					.values({
 						id: crypto.randomUUID(),
 						instagramAccountId: n.data.id,
@@ -1098,14 +1098,14 @@ async function _n(t, e) {
 						profilePictureUrl: n.data.picture?.data?.url ?? null,
 					})
 					.onConflictDoNothing(),
-		{ account: await j(t, "facebook"), error: null }
+		{ account: await G(t, "facebook"), error: null }
 	);
 }
 async function nt(t, e, n) {
 	if (n.webhookSubscribed === 1) return null;
-	let r = await e.post(`${n.instagramAccountId}/subscribed_apps`, { subscribed_fields: ka });
+	let r = await e.post(`${n.instagramAccountId}/subscribed_apps`, { subscribed_fields: Ea });
 	return r.ok
-		? (await t.update(y).set({ webhookSubscribed: 1, updatedAt: new Date().toISOString() }).where(wn(y.id, n.id)), null)
+		? (await t.update(w).set({ webhookSubscribed: 1, updatedAt: new Date().toISOString() }).where(wn(w.id, n.id)), null)
 		: `Facebook 粉專事件通知訂閱失敗（${Tt(r)}）`;
 }
 async function hn(t, e) {
@@ -1127,11 +1127,19 @@ async function hn(t, e) {
 		: { ok: !1, items: [], error: `抓取 Facebook 貼文失敗（${Tt(n)}）` };
 }
 var Ra = ["instagram_business_basic", "instagram_business_manage_messages", "instagram_business_manage_comments"],
-	Ta = ["pages_show_list", "pages_messaging", "pages_manage_metadata", "pages_read_engagement", "pages_manage_engagement"],
+	Ta = [
+		"pages_show_list",
+		"pages_messaging",
+		"pages_manage_metadata",
+		"pages_read_engagement",
+		"pages_manage_engagement",
+		"pages_read_user_content",
+		"business_management",
+	],
 	An = "comments,messages,messaging_postbacks,messaging_referral",
 	xa = "feed,messages,messaging_postbacks,messaging_referrals",
 	Ca = "v24.0",
-	q = class extends Error {
+	$ = class extends Error {
 		constructor(n, r) {
 			super(r);
 			this.code = n;
@@ -1143,22 +1151,22 @@ function xt(t) {
 }
 function Sn(t) {
 	let e = (t.PUBLIC_API_BASE ?? "").replace(/\/$/, "");
-	if (!e) throw new q("no_api_base", "系統網址未設定（PUBLIC_API_BASE）");
+	if (!e) throw new $("no_api_base", "系統網址未設定（PUBLIC_API_BASE）");
 	return e;
 }
 function ge(t, e) {
 	return `${Sn(t)}/api/oauth/${e}/callback`;
 }
 function bn(t, e) {
-	if (!t.INSTAGRAM_APP_ID) throw new q("missing_app", "尚未填入 Instagram App ID");
+	if (!t.INSTAGRAM_APP_ID) throw new $("missing_app", "尚未填入 Instagram App ID");
 	return `https://www.instagram.com/oauth/authorize?${new URLSearchParams({ client_id: t.INSTAGRAM_APP_ID, redirect_uri: ge(t, "instagram"), response_type: "code", scope: Ra.join(","), state: e })}`;
 }
 function In(t, e) {
-	if (!t.META_APP_ID) throw new q("missing_app", "尚未填入 Meta App ID");
+	if (!t.META_APP_ID) throw new $("missing_app", "尚未填入 Meta App ID");
 	let n = new URLSearchParams({ client_id: t.META_APP_ID, redirect_uri: ge(t, "facebook"), response_type: "code", scope: Ta.join(","), state: e });
 	return `https://www.facebook.com/${xt(t)}/dialog/oauth?${n}`;
 }
-async function ue(t) {
+async function te(t) {
 	try {
 		return await t.json();
 	} catch {
@@ -1169,8 +1177,8 @@ function me(t) {
 	let e = t?.error?.message ?? t?.error_message ?? t?.error_description ?? "";
 	return typeof e == "string" ? e.slice(0, 200) : "";
 }
-async function En(t, e) {
-	if (!t.INSTAGRAM_APP_ID || !t.INSTAGRAM_APP_SECRET) throw new q("missing_app", "尚未填入 Instagram App ID／App Secret");
+async function kn(t, e) {
+	if (!t.INSTAGRAM_APP_ID || !t.INSTAGRAM_APP_SECRET) throw new $("missing_app", "尚未填入 Instagram App ID／App Secret");
 	let n = new URLSearchParams({
 			client_id: t.INSTAGRAM_APP_ID,
 			client_secret: t.INSTAGRAM_APP_SECRET,
@@ -1183,21 +1191,21 @@ async function En(t, e) {
 			headers: { "Content-Type": "application/x-www-form-urlencoded" },
 			body: n.toString(),
 		}),
-		o = await ue(r),
+		o = await te(r),
 		a = o?.data?.[0]?.access_token ?? o?.access_token;
-	if (!r.ok || typeof a != "string") throw new q("exchange_failed", `Instagram 授權碼換權杖失敗：${me(o) || `HTTP ${r.status}`}`);
+	if (!r.ok || typeof a != "string") throw new $("exchange_failed", `Instagram 授權碼換權杖失敗：${me(o) || `HTTP ${r.status}`}`);
 	let i = new URLSearchParams({ grant_type: "ig_exchange_token", client_secret: t.INSTAGRAM_APP_SECRET, access_token: a }),
 		s = await fetch(`https://graph.instagram.com/access_token?${i}`),
-		c = await ue(s);
-	if (!s.ok || typeof c?.access_token != "string") throw new q("exchange_failed", `Instagram 換長效權杖失敗：${me(c) || `HTTP ${s.status}`}`);
+		c = await te(s);
+	if (!s.ok || typeof c?.access_token != "string") throw new $("exchange_failed", `Instagram 換長效權杖失敗：${me(c) || `HTTP ${s.status}`}`);
 	let u = Number(c.expires_in);
 	return { accessToken: c.access_token, expiresAt: Number.isFinite(u) && u > 0 ? new Date(Date.now() + u * 1e3).toISOString() : null };
 }
-async function kn(t, e) {
+async function En(t, e) {
 	let n = new URLSearchParams({ fields: "id,user_id,username,account_type,profile_picture_url", access_token: e }),
 		r = await fetch(`https://graph.instagram.com/${t.META_GRAPH_API_VERSION || "v21.0"}/me?${n}`),
-		o = await ue(r);
-	if (!r.ok || !(o?.user_id || o?.id)) throw new q("profile_failed", `讀取 Instagram 帳號資料失敗：${me(o) || `HTTP ${r.status}`}`);
+		o = await te(r);
+	if (!r.ok || !(o?.user_id || o?.id)) throw new $("profile_failed", `讀取 Instagram 帳號資料失敗：${me(o) || `HTTP ${r.status}`}`);
 	return { id: String(o.user_id ?? o.id), username: o.username ?? null, accountType: o.account_type ?? null, profilePictureUrl: o.profile_picture_url ?? null };
 }
 async function Rn(t, e) {
@@ -1207,15 +1215,15 @@ async function Rn(t, e) {
 			headers: { "Content-Type": "application/x-www-form-urlencoded" },
 			body: n.toString(),
 		});
-	return r.ok ? null : `Instagram 帳號事件通知訂閱失敗：${me(await ue(r)) || `HTTP ${r.status}`}`;
+	return r.ok ? null : `Instagram 帳號事件通知訂閱失敗：${me(await te(r)) || `HTTP ${r.status}`}`;
 }
 async function Tn(t, e) {
-	if (!t.META_APP_ID || !t.META_APP_SECRET) throw new q("missing_app", "尚未填入 Meta App ID／App Secret");
+	if (!t.META_APP_ID || !t.META_APP_SECRET) throw new $("missing_app", "尚未填入 Meta App ID／App Secret");
 	let n = `https://graph.facebook.com/${xt(t)}`,
 		r = new URLSearchParams({ client_id: t.META_APP_ID, client_secret: t.META_APP_SECRET, redirect_uri: ge(t, "facebook"), code: e }),
 		o = await fetch(`${n}/oauth/access_token?${r}`),
-		a = await ue(o);
-	if (!o.ok || typeof a?.access_token != "string") throw new q("exchange_failed", `Facebook 授權碼換權杖失敗：${me(a) || `HTTP ${o.status}`}`);
+		a = await te(o);
+	if (!o.ok || typeof a?.access_token != "string") throw new $("exchange_failed", `Facebook 授權碼換權杖失敗：${me(a) || `HTTP ${o.status}`}`);
 	let i = new URLSearchParams({
 			grant_type: "fb_exchange_token",
 			client_id: t.META_APP_ID,
@@ -1223,15 +1231,40 @@ async function Tn(t, e) {
 			fb_exchange_token: a.access_token,
 		}),
 		s = await fetch(`${n}/oauth/access_token?${i}`),
-		c = await ue(s);
-	if (!s.ok || typeof c?.access_token != "string") throw new q("exchange_failed", `Facebook 換長效權杖失敗：${me(c) || `HTTP ${s.status}`}`);
-	let u = new URLSearchParams({ fields: "id,name,access_token,picture{url}", limit: "100", access_token: c.access_token }),
-		l = await fetch(`${n}/me/accounts?${u}`),
-		p = await ue(l);
-	if (!l.ok || !Array.isArray(p?.data)) throw new q("pages_failed", `讀取粉專清單失敗：${me(p) || `HTTP ${l.status}`}`);
-	return p.data
-		.filter((m) => typeof m?.id == "string" && typeof m?.access_token == "string")
-		.map((m) => ({ id: m.id, name: m.name ?? m.id, accessToken: m.access_token, pictureUrl: m.picture?.data?.url ?? null }));
+		c = await te(s);
+	if (!s.ok || typeof c?.access_token != "string") throw new $("exchange_failed", `Facebook 換長效權杖失敗：${me(c) || `HTTP ${s.status}`}`);
+	let u = c.access_token,
+		l = "id,name,access_token,picture{url}",
+		p = (h) =>
+			(Array.isArray(h) ? h : [])
+				.filter((A) => typeof A?.id == "string" && typeof A?.access_token == "string")
+				.map((A) => ({ id: A.id, name: A.name ?? A.id, accessToken: A.access_token, pictureUrl: A.picture?.data?.url ?? null })),
+		m = await fetch(`${n}/me/accounts?${new URLSearchParams({ fields: l, limit: "100", access_token: u })}`),
+		g = await te(m);
+	if (!m.ok || !Array.isArray(g?.data)) throw new $("pages_failed", `讀取粉專清單失敗：${me(g) || `HTTP ${m.status}`}`);
+	let R = new Map(p(g.data).map((h) => [h.id, h]));
+	if (R.size === 0) {
+		let h = await fetch(`${n}/me/businesses?${new URLSearchParams({ fields: "id", limit: "50", access_token: u })}`),
+			A = await te(h);
+		for (let S of Array.isArray(A?.data) ? A.data : [])
+			for (let T of ["owned_pages", "client_pages"]) {
+				let v = await fetch(`${n}/${S.id}/${T}?${new URLSearchParams({ fields: l, limit: "100", access_token: u })}`);
+				for (let Z of p((await te(v))?.data)) R.set(Z.id, Z);
+			}
+	}
+	if (R.size === 0) {
+		let h = await fetch(`${n}/me/permissions?${new URLSearchParams({ access_token: u })}`),
+			A = await te(h),
+			S = new Set((Array.isArray(A?.data) ? A.data : []).filter((v) => v?.status === "granted").map((v) => v.permission)),
+			T = ["pages_show_list", "pages_messaging", "business_management"].filter((v) => !S.has(v));
+		throw new $(
+			"no_pages",
+			T.length
+				? `找不到可管理的粉專：授權時沒有允許 ${T.join("、")}。請再按一次連結，授權畫面選「編輯存取權限」，勾選你的粉專與商家資產組合，並允許所有權限`
+				: "找不到可管理的粉專：請確認登入的 Facebook 帳號是粉專管理員，授權畫面選「編輯存取權限」並勾選你的粉專",
+		);
+	}
+	return [...R.values()];
 }
 async function De(t, e) {
 	if (!t.META_APP_ID || !t.META_APP_SECRET) return "尚未填入 Meta App ID／App Secret，無法自動設定事件通知";
@@ -1250,7 +1283,7 @@ async function De(t, e) {
 			headers: { "Content-Type": "application/x-www-form-urlencoded" },
 			body: n.toString(),
 		});
-		return r.ok ? null : `自動設定事件通知失敗：${me(await ue(r)) || `HTTP ${r.status}`}`;
+		return r.ok ? null : `自動設定事件通知失敗：${me(await te(r)) || `HTTP ${r.status}`}`;
 	} catch {
 		return "自動設定事件通知失敗：連不到 Meta";
 	}
@@ -1284,12 +1317,12 @@ function Na(t, e) {
 	if (typeof e != "string") return null;
 	try {
 		let n = new URL(e);
-		return ke(t.ADMIN_ORIGINS).includes(n.origin) ? n.toString() : null;
+		return Ee(t.ADMIN_ORIGINS).includes(n.origin) ? n.toString() : null;
 	} catch {
 		return null;
 	}
 }
-function ne(t, e, n, r) {
+function ae(t, e, n, r) {
 	let o = new URL(t);
 	return (o.searchParams.set("connect", e), o.searchParams.set("status", n), r && o.searchParams.set("message", r.slice(0, 300)), o.toString());
 }
@@ -1307,8 +1340,8 @@ async function Ua(t, e, n, r) {
 			circuitBreakerStatus: "closed",
 			updatedAt: o,
 		},
-		i = await j(t, "instagram");
-	i ? await t.update(y).set(a).where(Cn(y.id, i.id)) : await t.insert(y).values({ id: crypto.randomUUID(), platform: "instagram", ...a });
+		i = await G(t, "instagram");
+	i ? await t.update(w).set(a).where(Cn(w.id, i.id)) : await t.insert(w).values({ id: crypto.randomUUID(), platform: "instagram", ...a });
 }
 async function Dn(t, e) {
 	let n = t.DB,
@@ -1323,9 +1356,9 @@ async function Dn(t, e) {
 			circuitBreakerStatus: "closed",
 			updatedAt: r,
 		},
-		a = await j(n, "facebook");
-	a ? await n.update(y).set(o).where(Cn(y.id, a.id)) : await n.insert(y).values({ id: crypto.randomUUID(), platform: "facebook", ...o });
-	let i = await j(n, "facebook"),
+		a = await G(n, "facebook");
+	a ? await n.update(w).set(o).where(Cn(w.id, a.id)) : await n.insert(w).values({ id: crypto.randomUUID(), platform: "facebook", ...o });
+	let i = await G(n, "facebook"),
 		s = ve({ ...t, FACEBOOK_PAGE_ACCESS_TOKEN: e.accessToken }),
 		c = i && s ? await nt(n, s, i) : "粉專資料寫入失敗",
 		u = await De({ ...t }, "page");
@@ -1333,13 +1366,13 @@ async function Dn(t, e) {
 }
 function Mn() {
 	let t = new Pn();
-	(t.use("*", J(), U()),
+	(t.use("*", J(), B()),
 		t.get("/status", async (e) => {
 			let n = e.env,
 				r = n.DB,
 				o = await Ce(r, ["FB_PAGE_CANDIDATES", "WEBHOOK_STATUS_INSTAGRAM", "WEBHOOK_STATUS_PAGE"]),
-				a = await j(r, "instagram"),
-				i = await j(r, "facebook"),
+				a = await G(r, "instagram"),
+				i = await G(r, "facebook"),
 				s = !!(a?.accessToken || n.INSTAGRAM_ACCOUNT_ACCESS_TOKEN?.trim()),
 				c = !!n.FACEBOOK_PAGE_ACCESS_TOKEN?.trim(),
 				[{ n: u }] = await r.select({ n: Pa() }).from(f),
@@ -1368,7 +1401,7 @@ function Mn() {
 				automationCount: Number(u),
 			});
 		}),
-		t.put("/app", O(), async (e) => {
+		t.put("/app", N(), async (e) => {
 			let n;
 			try {
 				n = await e.req.json();
@@ -1391,7 +1424,7 @@ function Mn() {
 			return (await pe(e.env.DB, o), e.json({ ok: !0 }));
 		}));
 	for (let e of ["instagram", "facebook"])
-		t.post(`/${e}/start`, O(), async (n) => {
+		t.post(`/${e}/start`, N(), async (n) => {
 			let r = {};
 			try {
 				r = await n.req.json();
@@ -1403,7 +1436,7 @@ function Mn() {
 					i = e === "instagram" ? bn(n.env, a) : In(n.env, a);
 				return n.json({ url: i });
 			} catch (a) {
-				if (a instanceof q) return n.json({ error: a.message }, 400);
+				if (a instanceof $) return n.json({ error: a.message }, 400);
 				throw a;
 			}
 		});
@@ -1413,7 +1446,7 @@ function Mn() {
 				r = n.FB_PAGE_CANDIDATES ? JSON.parse(n.FB_PAGE_CANDIDATES) : [];
 			return e.json({ pages: r.map((o) => ({ id: o.id, name: o.name, pictureUrl: o.pictureUrl })) });
 		}),
-		t.post("/facebook/select", O(), async (e) => {
+		t.post("/facebook/select", N(), async (e) => {
 			let n = {};
 			try {
 				n = await e.req.json();
@@ -1426,9 +1459,9 @@ function Mn() {
 			let i = await Dn(e.env, a);
 			return e.json({ ok: !0, warning: i });
 		}),
-		t.post("/webhooks/retry", O(), async (e) => {
-			let n = await j(e.env.DB, "instagram"),
-				r = await j(e.env.DB, "facebook"),
+		t.post("/webhooks/retry", N(), async (e) => {
+			let n = await G(e.env.DB, "instagram"),
+				r = await G(e.env.DB, "facebook"),
 				o = {};
 			return (
 				n && (o.WEBHOOK_STATUS_INSTAGRAM = (await De(e.env, "instagram")) ?? "ok"),
@@ -1446,36 +1479,36 @@ function On() {
 		t.get("/instagram/callback", async (e) => {
 			let n = await xn(e.env, e.req.query("state"));
 			if (!n || n.p !== "instagram") return e.text("連結逾時或網址無效，請回到後台重新按「連結 Instagram」。", 400);
-			if (e.req.query("error")) return e.redirect(ne(n.r, "instagram", "cancelled"), 302);
+			if (e.req.query("error")) return e.redirect(ae(n.r, "instagram", "cancelled"), 302);
 			let r = e.req.query("code");
-			if (!r) return e.redirect(ne(n.r, "instagram", "error", "Meta 沒有回傳授權碼"), 302);
+			if (!r) return e.redirect(ae(n.r, "instagram", "error", "Meta 沒有回傳授權碼"), 302);
 			try {
-				let o = await En(e.env, r.replace(/#_$/, "")),
-					a = await kn(e.env, o.accessToken),
+				let o = await kn(e.env, r.replace(/#_$/, "")),
+					a = await En(e.env, o.accessToken),
 					i = await Rn(e.env, o.accessToken);
 				await Ua(e.env.DB, a, o, !i);
 				let s = await De(e.env, "instagram");
-				return (await pe(e.env.DB, { WEBHOOK_STATUS_INSTAGRAM: s ?? "ok" }), e.redirect(ne(n.r, "instagram", i ? "warning" : "ok", i ?? void 0), 302));
+				return (await pe(e.env.DB, { WEBHOOK_STATUS_INSTAGRAM: s ?? "ok" }), e.redirect(ae(n.r, "instagram", i ? "warning" : "ok", i ?? void 0), 302));
 			} catch (o) {
-				let a = o instanceof q ? o.message : "連結過程發生錯誤，請再試一次";
-				return e.redirect(ne(n.r, "instagram", "error", a), 302);
+				let a = o instanceof $ ? o.message : "連結過程發生錯誤，請再試一次";
+				return e.redirect(ae(n.r, "instagram", "error", a), 302);
 			}
 		}),
 		t.get("/facebook/callback", async (e) => {
 			let n = await xn(e.env, e.req.query("state"));
 			if (!n || n.p !== "facebook") return e.text("連結逾時或網址無效，請回到後台重新按「連結 Facebook」。", 400);
-			if (e.req.query("error")) return e.redirect(ne(n.r, "facebook", "cancelled"), 302);
+			if (e.req.query("error")) return e.redirect(ae(n.r, "facebook", "cancelled"), 302);
 			let r = e.req.query("code");
-			if (!r) return e.redirect(ne(n.r, "facebook", "error", "Meta 沒有回傳授權碼"), 302);
+			if (!r) return e.redirect(ae(n.r, "facebook", "error", "Meta 沒有回傳授權碼"), 302);
 			try {
 				let o = await Tn(e.env, r);
-				if (o.length === 0) return e.redirect(ne(n.r, "facebook", "error", "這個 Facebook 帳號沒有可管理的粉專，或授權時沒有勾選粉專"), 302);
-				if (o.length > 1) return (await pe(e.env.DB, { FB_PAGE_CANDIDATES: JSON.stringify(o) }), e.redirect(ne(n.r, "facebook", "choose"), 302));
+				if (o.length === 0) return e.redirect(ae(n.r, "facebook", "error", "這個 Facebook 帳號沒有可管理的粉專，或授權時沒有勾選粉專"), 302);
+				if (o.length > 1) return (await pe(e.env.DB, { FB_PAGE_CANDIDATES: JSON.stringify(o) }), e.redirect(ae(n.r, "facebook", "choose"), 302));
 				let a = await Dn(e.env, o[0]);
-				return e.redirect(ne(n.r, "facebook", a ? "warning" : "ok", a ?? void 0), 302);
+				return e.redirect(ae(n.r, "facebook", a ? "warning" : "ok", a ?? void 0), 302);
 			} catch (o) {
-				let a = o instanceof q ? o.message : "連結過程發生錯誤，請再試一次";
-				return e.redirect(ne(n.r, "facebook", "error", a), 302);
+				let a = o instanceof $ ? o.message : "連結過程發生錯誤，請再試一次";
+				return e.redirect(ae(n.r, "facebook", "error", a), 302);
 			}
 		}),
 		t
@@ -1540,24 +1573,24 @@ function $a(t) {
 function $n() {
 	let t = new Ba();
 	return (
-		t.use("*", J(), U()),
+		t.use("*", J(), B()),
 		t.get("/", async (e) => {
 			let n = e.env.DB,
 				r = e.req.query(),
 				o = Math.min(Number.parseInt(r.limit ?? "", 10) || 200, 1e3),
-				a = await n.select().from(h).orderBy(Nn(h.lastSeenAt)),
+				a = await n.select().from(b).orderBy(Nn(b.lastSeenAt)),
 				i = Un(a, r);
 			return e.json({ total: i.length, contacts: i.slice(0, o) });
 		}),
 		t.get("/tags", async (e) => {
 			let n = e.env.DB,
 				r = new Map();
-			for (let o of await n.select({ tags: h.tags }).from(h)) for (let a of Fn(o.tags)) r.set(a, (r.get(a) ?? 0) + 1);
+			for (let o of await n.select({ tags: b.tags }).from(b)) for (let a of Fn(o.tags)) r.set(a, (r.get(a) ?? 0) + 1);
 			return e.json({ tags: [...r.entries()].sort((o, a) => a[1] - o[1]).map(([o, a]) => ({ tag: o, count: a })) });
 		}),
 		t.get("/export.csv", async (e) => {
 			let n = e.env.DB,
-				r = Un(await n.select().from(h).orderBy(Nn(h.lastSeenAt)), e.req.query()),
+				r = Un(await n.select().from(b).orderBy(Nn(b.lastSeenAt)), e.req.query()),
 				o = new Date(Date.now() + 8 * 36e5).toISOString().slice(0, 10);
 			return (
 				await n
@@ -1578,17 +1611,17 @@ function $n() {
 				})
 			);
 		}),
-		t.delete("/:igsid", O(), async (e) => {
+		t.delete("/:igsid", N(), async (e) => {
 			let n = e.req.param("igsid"),
 				r = e.env.DB;
-			return (await r.select().from(h).where(rt(h.igsid, n)).limit(1)).length === 0
+			return (await r.select().from(b).where(rt(b.igsid, n)).limit(1)).length === 0
 				? e.json({ error: "聯絡人不存在" }, 404)
 				: (await r.delete(W).where(rt(W.igsid, n)),
 					await r
-						.update(g)
+						.update(y)
 						.set({ commenterId: null, commenterUsername: null, originalCommentText: null, normalizedCommentText: null })
-						.where(rt(g.commenterId, n)),
-					await r.delete(h).where(rt(h.igsid, n)),
+						.where(rt(y.commenterId, n)),
+					await r.delete(b).where(rt(b.igsid, n)),
 					await r
 						.insert(Y)
 						.values({ id: crypto.randomUUID(), adminUserId: e.get("adminUserId"), action: "contacts.delete", entityType: "contacts", ipAddress: z(e.req) }),
@@ -1599,8 +1632,8 @@ function $n() {
 }
 import { and as Qa, desc as Za, eq as eo, isNull as to } from "npm:drizzle-orm@0.45.2";
 import { Hono as no } from "npm:hono@4.12.32";
-import { and as ot, eq as G, isNull as qn, ne as ja } from "npm:drizzle-orm@0.45.2";
-import { and as at, asc as La, eq as re, isNull as Ct, or as Ka } from "npm:drizzle-orm@0.45.2";
+import { and as ot, eq as V, isNull as qn, ne as ja } from "npm:drizzle-orm@0.45.2";
+import { and as at, asc as La, eq as oe, isNull as Ct, or as Ka } from "npm:drizzle-orm@0.45.2";
 function qa(t, e) {
 	return t == null || t === e.platform;
 }
@@ -1608,19 +1641,19 @@ function Ha(t, e) {
 	return !!(e.publishedAt && e.publishedAt > t.createdAt);
 }
 async function Pt(t, e) {
-	if (e.mediaType === "STORY" || (await t.select().from(f).where(re(f.instagramMediaId, e.id)).limit(1))[0]) return null;
+	if (e.mediaType === "STORY" || (await t.select().from(f).where(oe(f.instagramMediaId, e.id)).limit(1))[0]) return null;
 	let r = await t
 		.select()
 		.from(f)
-		.where(at(re(f.applyScope, "next_post"), Ct(f.instagramMediaId)))
+		.where(at(oe(f.applyScope, "next_post"), Ct(f.instagramMediaId)))
 		.orderBy(La(f.createdAt));
 	for (let o of r) {
 		if (!qa(o.platform, e) || !Ha(o, e)) continue;
 		await t
 			.update(f)
 			.set({ instagramMediaId: e.id, applyScope: "media", updatedAt: new Date().toISOString() })
-			.where(at(re(f.id, o.id), Ct(f.instagramMediaId)));
-		let a = await t.select().from(f).where(re(f.id, o.id)).limit(1);
+			.where(at(oe(f.id, o.id), Ct(f.instagramMediaId)));
+		let a = await t.select().from(f).where(oe(f.id, o.id)).limit(1);
 		if (a[0]?.instagramMediaId === e.id) return a[0];
 	}
 	return null;
@@ -1629,7 +1662,7 @@ async function Ln(t, e) {
 	let n = await t
 		.select()
 		.from(f)
-		.where(at(re(f.instagramMediaId, e.id), re(f.status, "active")))
+		.where(at(oe(f.instagramMediaId, e.id), oe(f.status, "active")))
 		.limit(1);
 	if (n[0]) return n[0];
 	let r = await Pt(t, e);
@@ -1638,7 +1671,7 @@ async function Ln(t, e) {
 	let o = await t
 		.select()
 		.from(f)
-		.where(at(re(f.applyScope, "account_default"), re(f.status, "active"), Ka(Ct(f.platform), re(f.platform, e.platform))));
+		.where(at(oe(f.applyScope, "account_default"), oe(f.status, "active"), Ka(Ct(f.platform), oe(f.platform, e.platform))));
 	return o.find((a) => a.platform === e.platform) ?? o[0] ?? null;
 }
 async function Kn(t, e, n, r = "instagram") {
@@ -1647,7 +1680,7 @@ async function Kn(t, e, n, r = "instagram") {
 		i = new Date().toISOString();
 	for (let s of n) {
 		if (!s.id) continue;
-		let c = await t.select().from(_).where(G(_.instagramMediaId, s.id)).limit(1);
+		let c = await t.select().from(_).where(V(_.instagramMediaId, s.id)).limit(1);
 		c.length > 0
 			? (await t
 					.update(_)
@@ -1659,7 +1692,7 @@ async function Kn(t, e, n, r = "instagram") {
 						updatedAt: i,
 						deletedAt: null,
 					})
-					.where(G(_.id, c[0].id)),
+					.where(V(_.id, c[0].id)),
 				(a += 1))
 			: (await t
 					.insert(_)
@@ -1709,12 +1742,12 @@ async function Wa(t, e, n) {
 		a = new Date().toISOString();
 	for (let u of n) {
 		if (!u.id) continue;
-		let l = await t.select().from(_).where(G(_.instagramMediaId, u.id)).limit(1);
+		let l = await t.select().from(_).where(V(_.instagramMediaId, u.id)).limit(1);
 		l.length > 0
 			? (await t
 					.update(_)
 					.set({ thumbnailUrl: u.thumbnail_url ?? u.media_url ?? l[0].thumbnailUrl, lastSyncedAt: a, updatedAt: a, deletedAt: null })
-					.where(G(_.id, l[0].id)),
+					.where(V(_.id, l[0].id)),
 				(o += 1))
 			: (await t
 					.insert(_)
@@ -1733,15 +1766,15 @@ async function Wa(t, e, n) {
 		s = await t
 			.select()
 			.from(_)
-			.where(ot(G(_.instagramAccountId, e), G(_.mediaType, "STORY"), qn(_.deletedAt))),
+			.where(ot(V(_.instagramAccountId, e), V(_.mediaType, "STORY"), qn(_.deletedAt))),
 		c = 0;
 	for (let u of s)
 		i.has(u.instagramMediaId) ||
-			(await t.update(_).set({ deletedAt: a, updatedAt: a }).where(G(_.id, u.id)),
+			(await t.update(_).set({ deletedAt: a, updatedAt: a }).where(V(_.id, u.id)),
 			await t
 				.update(f)
 				.set({ status: "paused", updatedAt: a })
-				.where(ot(G(f.instagramMediaId, u.id), G(f.status, "active"))),
+				.where(ot(V(f.instagramMediaId, u.id), V(f.status, "active"))),
 			(c += 1));
 	return { inserted: r, updated: o, expired: c };
 }
@@ -1749,24 +1782,24 @@ async function za(t, e, n, r) {
 	let o = await t
 			.select()
 			.from(_)
-			.where(ot(G(_.instagramAccountId, n), qn(_.deletedAt), ja(_.mediaType, "STORY"))),
+			.where(ot(V(_.instagramAccountId, n), qn(_.deletedAt), ja(_.mediaType, "STORY"))),
 		a = 0;
 	for (let i of o) {
 		if (r.has(i.instagramMediaId)) continue;
 		let s = await e.get(i.instagramMediaId, { fields: "id" });
 		if (s.ok || s.failure?.nonRetryableReason !== "bad_request") continue;
 		let c = new Date().toISOString();
-		(await t.update(_).set({ deletedAt: c, updatedAt: c }).where(G(_.id, i.id)),
+		(await t.update(_).set({ deletedAt: c, updatedAt: c }).where(V(_.id, i.id)),
 			await t
 				.update(f)
 				.set({ status: "paused", updatedAt: c })
-				.where(ot(G(f.instagramMediaId, i.id), G(f.status, "active"))),
+				.where(ot(V(f.instagramMediaId, i.id), V(f.status, "active"))),
 			(a += 1));
 	}
 	return { deleted: a };
 }
 async function Ja(t, e) {
-	if ((await t.select().from(y).where(G(y.platform, "instagram")).limit(1)).length > 0) return null;
+	if ((await t.select().from(w).where(V(w.platform, "instagram")).limit(1)).length > 0) return null;
 	let r = await e.get("me", { fields: "id,username,account_type,profile_picture_url" });
 	if (!r.ok || !r.data?.id) {
 		let o = r.failure?.nonRetryableReason ?? (r.failure?.networkError ? "network_error" : "http_error"),
@@ -1775,7 +1808,7 @@ async function Ja(t, e) {
 	}
 	return (
 		await t
-			.insert(y)
+			.insert(w)
 			.values({
 				id: crypto.randomUUID(),
 				instagramAccountId: r.data.id,
@@ -1795,7 +1828,7 @@ async function it(t) {
 		o = !!t.INSTAGRAM_ACCOUNT_ACCESS_TOKEN?.trim() || !!(await Ya(e)),
 		a = o ? await Ja(e, n) : null;
 	a && r.errors.push(a);
-	let i = o && !a ? await e.select().from(y).where(G(y.platform, "instagram")) : [];
+	let i = o && !a ? await e.select().from(w).where(V(w.platform, "instagram")) : [];
 	r.accounts = i.length;
 	for (let l of i) {
 		let p = await Ga(n, l.instagramAccountId);
@@ -1807,17 +1840,17 @@ async function it(t) {
 		}
 		let m = await Kn(e, l.id, p.items);
 		((r.inserted += m.inserted), (r.updated += m.updated));
-		let w = new Set(p.items.map((M) => M.id).filter(Boolean)),
-			E = await za(e, n, l.id, w);
-		r.deleted += E.deleted;
-		let k = await Va(n, l.instagramAccountId);
-		if (!k.ok)
+		let g = new Set(p.items.map((A) => A.id).filter(Boolean)),
+			R = await za(e, n, l.id, g);
+		r.deleted += R.deleted;
+		let h = await Va(n, l.instagramAccountId);
+		if (!h.ok)
 			r.errors.push(
-				`Instagram 帳號 ${l.username ?? l.instagramAccountId}：抓取限時動態失敗（HTTP ${k.status}，${vt(k.reason)}）${k.detail ? `｜Meta 回覆：${k.detail}` : ""}`,
+				`Instagram 帳號 ${l.username ?? l.instagramAccountId}：抓取限時動態失敗（HTTP ${h.status}，${vt(h.reason)}）${h.detail ? `｜Meta 回覆：${h.detail}` : ""}`,
 			);
 		else {
-			let M = await Wa(e, l.id, k.items);
-			((r.inserted += M.inserted), (r.updated += M.updated), (r.expiredStories += M.expired));
+			let A = await Wa(e, l.id, h.items);
+			((r.inserted += A.inserted), (r.updated += A.updated), (r.expiredStories += A.expired));
 		}
 	}
 	let s = ve(t);
@@ -1827,11 +1860,11 @@ async function it(t) {
 			r.accounts += 1;
 			let m = await nt(e, s, l);
 			m && r.errors.push(m);
-			let w = await hn(s, l.instagramAccountId);
-			if (!w.ok) r.errors.push(w.error ?? "抓取 Facebook 貼文失敗");
+			let g = await hn(s, l.instagramAccountId);
+			if (!g.ok) r.errors.push(g.error ?? "抓取 Facebook 貼文失敗");
 			else {
-				let E = await Kn(e, l.id, w.items, "facebook");
-				((r.inserted += E.inserted), (r.updated += E.updated));
+				let R = await Kn(e, l.id, g.items, "facebook");
+				((r.inserted += R.inserted), (r.updated += R.updated));
 			}
 		}
 	}
@@ -1840,7 +1873,7 @@ async function it(t) {
 	return r;
 }
 async function Ya(t) {
-	return (await t.select({ accessToken: y.accessToken }).from(y).where(G(y.platform, "instagram")).limit(1))[0]?.accessToken ?? null;
+	return (await t.select({ accessToken: w.accessToken }).from(w).where(V(w.platform, "instagram")).limit(1))[0]?.accessToken ?? null;
 }
 var Xa = {
 	token_invalid: "存取權杖失效",
@@ -1860,8 +1893,8 @@ var ro = 20,
 function Hn() {
 	let t = new no();
 	return (
-		t.use("*", J(), U()),
-		t.post("/sync", O(), async (e) => {
+		t.use("*", J(), B()),
+		t.post("/sync", N(), async (e) => {
 			try {
 				let n = await it(e.env);
 				return e.json({ ok: !0, ...n });
@@ -1896,25 +1929,25 @@ var uo = 50,
 function jn() {
 	let t = new co();
 	return (
-		t.use("*", J(), U()),
+		t.use("*", J(), B()),
 		t.get("/", async (e) => {
 			let n = e.env.DB,
 				r = e.req.query(),
 				o = [];
-			(r.mediaId && o.push(ye(g.instagramMediaId, r.mediaId)),
-				r.automationId && o.push(ye(g.automationId, r.automationId)),
-				r.status && o.push(ye(g.status, r.status)),
-				r.publicReplyStatus && o.push(ye(g.publicReplyStatus, r.publicReplyStatus)),
-				r.privateReplyStatus && o.push(ye(g.privateReplyStatus, r.privateReplyStatus)),
-				r.dateFrom && o.push(so(g.createdAt, r.dateFrom)),
-				r.dateTo && o.push(lo(g.createdAt, r.dateTo)));
+			(r.mediaId && o.push(ye(y.instagramMediaId, r.mediaId)),
+				r.automationId && o.push(ye(y.automationId, r.automationId)),
+				r.status && o.push(ye(y.status, r.status)),
+				r.publicReplyStatus && o.push(ye(y.publicReplyStatus, r.publicReplyStatus)),
+				r.privateReplyStatus && o.push(ye(y.privateReplyStatus, r.privateReplyStatus)),
+				r.dateFrom && o.push(so(y.createdAt, r.dateFrom)),
+				r.dateTo && o.push(lo(y.createdAt, r.dateTo)));
 			let a = Math.min(Number.parseInt(r.limit ?? "", 10) || uo, mo),
 				i = Math.max(Number.parseInt(r.page ?? "", 10) || 1, 1),
 				s = await n
 					.select()
-					.from(g)
+					.from(y)
 					.where(o.length ? oo(...o) : void 0)
-					.orderBy(io(g.createdAt))
+					.orderBy(io(y.createdAt))
 					.limit(a)
 					.offset((i - 1) * a);
 			return e.json({ page: i, limit: a, runs: s });
@@ -1922,9 +1955,9 @@ function jn() {
 		t.get("/:id", async (e) => {
 			let n = e.env.DB,
 				r = e.req.param("id"),
-				o = await n.select().from(g).where(ye(g.id, r)).limit(1);
+				o = await n.select().from(y).where(ye(y.id, r)).limit(1);
 			if (o.length === 0) return e.json({ error: "紀錄不存在" }, 404);
-			let a = await n.select().from(K).where(ye(K.automationRunId, r)).orderBy(K.attemptNumber);
+			let a = await n.select().from(H).where(ye(H.automationRunId, r)).orderBy(H.attemptNumber);
 			return e.json({ run: o[0], attempts: a });
 		}),
 		t
@@ -1934,16 +1967,16 @@ import { eq as Vn } from "npm:drizzle-orm@0.45.2";
 import { Hono as po } from "npm:hono@4.12.32";
 var Me = "default";
 async function Wn(t) {
-	let e = await t.select().from(H).where(Vn(H.id, Me)).limit(1);
-	return e.length === 0 ? (await t.insert(H).values({ id: Me, emergencyStop: 0 }), { id: Me, emergencyStop: 0 }) : e[0];
+	let e = await t.select().from(j).where(Vn(j.id, Me)).limit(1);
+	return e.length === 0 ? (await t.insert(j).values({ id: Me, emergencyStop: 0 }), { id: Me, emergencyStop: 0 }) : e[0];
 }
 async function Gn(t, e, n, r) {
 	let o = t.DB;
 	(await Wn(o),
 		await o
-			.update(H)
+			.update(j)
 			.set({ emergencyStop: r ? 1 : 0, updatedAt: new Date().toISOString() })
-			.where(Vn(H.id, Me)),
+			.where(Vn(j.id, Me)),
 		await o
 			.insert(Y)
 			.values({
@@ -1959,66 +1992,66 @@ function zn() {
 	let t = new po();
 	return (
 		t.use("*", J()),
-		t.get("/status", U(), async (e) => {
+		t.get("/status", B(), async (e) => {
 			let n = e.env.DB,
 				r = await Wn(n),
-				o = await n.select().from(y),
-				a = o.filter((A) => A.platform === "instagram"),
-				i = o.find((A) => A.platform === "facebook"),
+				o = await n.select().from(w),
+				a = o.filter((I) => I.platform === "instagram"),
+				i = o.find((I) => I.platform === "facebook"),
 				s = 480 * 60 * 1e3,
 				c = new Date(Date.now() + s).toISOString().slice(0, 10),
 				u = new Date(Date.parse(`${c}T00:00:00Z`) - s).toISOString(),
-				l = await n.select().from(g),
-				p = l.filter((A) => A.createdAt >= u),
+				l = await n.select().from(y),
+				p = l.filter((I) => I.createdAt >= u),
 				m = 1440 * 60 * 1e3,
-				w = Date.now() + s,
-				E = (A) => new Date(A).toISOString().slice(0, 10),
-				k = (A) => new Date(A).toISOString().slice(0, 7),
-				M = (A) => {
-					let S = new Date(A);
-					return Date.parse(`${E(A)}T00:00:00Z`) - ((S.getUTCDay() + 6) % 7) * m;
+				g = Date.now() + s,
+				R = (I) => new Date(I).toISOString().slice(0, 10),
+				h = (I) => new Date(I).toISOString().slice(0, 7),
+				A = (I) => {
+					let k = new Date(I);
+					return Date.parse(`${R(I)}T00:00:00Z`) - ((k.getUTCDay() + 6) % 7) * m;
 				},
-				I = (A, S) => {
-					let ee = new Map(A.map((F) => [F, { label: F, matched: 0, dmSuccess: 0, failures: 0 }]));
-					for (let F of l) {
-						let Ke = ee.get(S(Date.parse(F.createdAt) + s));
-						Ke && ((Ke.matched += 1), F.privateReplyStatus === "success" && (Ke.dmSuccess += 1), F.status === "completed_with_errors" && (Ke.failures += 1));
+				S = (I, k) => {
+					let ne = new Map(I.map((L) => [L, { label: L, matched: 0, dmSuccess: 0, failures: 0 }]));
+					for (let L of l) {
+						let Ke = ne.get(k(Date.parse(L.createdAt) + s));
+						Ke && ((Ke.matched += 1), L.privateReplyStatus === "success" && (Ke.dmSuccess += 1), L.status === "completed_with_errors" && (Ke.failures += 1));
 					}
-					return A.map((F) => ee.get(F));
+					return I.map((L) => ne.get(L));
 				},
-				v = Date.parse(`${c}T00:00:00Z`),
-				V = Array.from({ length: 30 }, (A, S) => E(v - (29 - S) * m)),
-				oe = M(w),
-				ie = Array.from({ length: 12 }, (A, S) => E(oe - (11 - S) * 7 * m)),
-				Le = Array.from({ length: 12 }, (A, S) => {
-					let ee = new Date(w);
-					return `${new Date(Date.UTC(ee.getUTCFullYear(), ee.getUTCMonth() - (11 - S), 1)).toISOString().slice(0, 7)}`;
+				T = Date.parse(`${c}T00:00:00Z`),
+				v = Array.from({ length: 30 }, (I, k) => R(T - (29 - k) * m)),
+				Z = A(g),
+				se = Array.from({ length: 12 }, (I, k) => R(Z - (11 - k) * 7 * m)),
+				Le = Array.from({ length: 12 }, (I, k) => {
+					let ne = new Date(g);
+					return `${new Date(Date.UTC(ne.getUTCFullYear(), ne.getUTCMonth() - (11 - k), 1)).toISOString().slice(0, 7)}`;
 				}),
-				D = { daily: I(V, (A) => E(A)), weekly: I(ie, (A) => E(M(A))), monthly: I(Le, (A) => k(A)) },
-				he = (A) => ({
-					matched: A.length,
-					publicReplySuccess: A.filter((S) => S.publicReplyStatus === "success").length,
-					dmSuccess: A.filter((S) => S.privateReplyStatus === "success").length,
-					failures: A.filter((S) => S.status === "completed_with_errors").length,
+				O = { daily: S(v, (I) => R(I)), weekly: S(se, (I) => R(A(I))), monthly: S(Le, (I) => h(I)) },
+				he = (I) => ({
+					matched: I.length,
+					publicReplySuccess: I.filter((k) => k.publicReplyStatus === "success").length,
+					dmSuccess: I.filter((k) => k.privateReplyStatus === "success").length,
+					failures: I.filter((k) => k.status === "completed_with_errors").length,
 				});
 			return e.json({
 				emergencyStop: r.emergencyStop === 1,
-				circuitBreakerStatus: o.some((A) => A.circuitBreakerStatus !== "closed") ? "open" : (o[0]?.circuitBreakerStatus ?? "unknown"),
+				circuitBreakerStatus: o.some((I) => I.circuitBreakerStatus !== "closed") ? "open" : (o[0]?.circuitBreakerStatus ?? "unknown"),
 				account: a[0] ? { username: a[0].username, profilePictureUrl: a[0].profilePictureUrl } : null,
 				tokenExpiresAt: a[0]?.tokenExpiresAt ?? null,
 				facebookPage: i ? { name: i.username, profilePictureUrl: i.profilePictureUrl, webhookSubscribed: i.webhookSubscribed === 1 } : null,
 				lastWebhookReceivedAt: a[0]?.lastWebhookReceivedAt ?? null,
 				today: he(p),
 				total: he(l),
-				series: D,
+				series: O,
 			});
 		}),
-		t.post("/emergency-stop", O(), U(), async (e) => (await Gn(e.env, e.get("adminUserId"), z(e.req), !0), e.json({ ok: !0, emergencyStop: !0 }))),
-		t.post("/resume", O(), U(), async (e) => (await Gn(e.env, e.get("adminUserId"), z(e.req), !1), e.json({ ok: !0, emergencyStop: !1 }))),
-		t.post("/circuit-breaker/reset", O(), U(), async (e) => {
+		t.post("/emergency-stop", N(), B(), async (e) => (await Gn(e.env, e.get("adminUserId"), z(e.req), !0), e.json({ ok: !0, emergencyStop: !0 }))),
+		t.post("/resume", N(), B(), async (e) => (await Gn(e.env, e.get("adminUserId"), z(e.req), !1), e.json({ ok: !0, emergencyStop: !1 }))),
+		t.post("/circuit-breaker/reset", N(), B(), async (e) => {
 			let n = e.env.DB;
 			return (
-				await n.update(y).set({ circuitBreakerStatus: "closed", updatedAt: new Date().toISOString() }),
+				await n.update(w).set({ circuitBreakerStatus: "closed", updatedAt: new Date().toISOString() }),
 				await n
 					.insert(Y)
 					.values({
@@ -2064,17 +2097,17 @@ async function Zn(t, e, n) {
 	let r = new Date().toISOString(),
 		a = (
 			await t
-				.insert(Z)
+				.insert(ee)
 				.values({ id: crypto.randomUUID(), scopeKey: e, windowStart: n, count: 1 })
-				.onConflictDoUpdate({ target: [Z.scopeKey, Z.windowStart], set: { count: er`${Z.count} + 1`, updatedAt: r } })
-				.returning({ count: Z.count })
+				.onConflictDoUpdate({ target: [ee.scopeKey, ee.windowStart], set: { count: er`${ee.count} + 1`, updatedAt: r } })
+				.returning({ count: ee.count })
 		)[0]?.count;
 	if (typeof a != "number") throw new Error("send counter reservation failed");
 	return a;
 }
 async function we(t, e) {
 	let n = e.nowMs ?? Date.now(),
-		r = (await t.select().from(H).limit(1))[0];
+		r = (await t.select().from(j).limit(1))[0];
 	if (r && r.emergencyStop === 1) return { allowed: !1, reason: "emergency_stop" };
 	if (e.automationDailyLimit != null) {
 		let i = st(n);
@@ -2082,8 +2115,8 @@ async function we(t, e) {
 			((
 				await t
 					.select({ n: er`count(*)` })
-					.from(g)
-					.where(go(yo(g.automationId, e.automationId), wo(g.createdAt, i)))
+					.from(y)
+					.where(go(yo(y.automationId, e.automationId), wo(y.createdAt, i)))
 			)[0]?.n ?? 0) > e.automationDailyLimit
 		)
 			return { allowed: !1, reason: "automation_daily_limit" };
@@ -2106,34 +2139,34 @@ async function ar(t, e = Date.now(), n = {}) {
 		o = new Date(e - So * nr).toISOString(),
 		a = new Date(e - bo * nr).toISOString(),
 		i = 0;
-	for (let E = 0; E < rr; E++) {
-		let k = await t
-			.select({ id: C.id })
-			.from(C)
-			.where(Ao(lt(C.receivedAt, o), ho(C.rawPayload, "{}")))
+	for (let R = 0; R < rr; R++) {
+		let h = await t
+			.select({ id: D.id })
+			.from(D)
+			.where(Ao(lt(D.receivedAt, o), ho(D.rawPayload, "{}")))
 			.limit(r);
-		if (k.length === 0) break;
-		let M = k.map((I) => I.id);
-		if ((await t.update(C).set({ rawPayload: "{}" }).where(tr(C.id, M)), (i += M.length), k.length < r)) break;
+		if (h.length === 0) break;
+		let A = h.map((S) => S.id);
+		if ((await t.update(D).set({ rawPayload: "{}" }).where(tr(D.id, A)), (i += A.length), h.length < r)) break;
 	}
 	let s = 0;
-	for (let E = 0; E < rr; E++) {
-		let k = await t.select({ id: K.id }).from(K).where(lt(K.startedAt, a)).limit(r);
-		if (k.length === 0) break;
-		let M = k.map((I) => I.id);
-		if ((await t.delete(K).where(tr(K.id, M)), (s += M.length), k.length < r)) break;
+	for (let R = 0; R < rr; R++) {
+		let h = await t.select({ id: H.id }).from(H).where(lt(H.startedAt, a)).limit(r);
+		if (h.length === 0) break;
+		let A = h.map((S) => S.id);
+		if ((await t.delete(H).where(tr(H.id, A)), (s += A.length), h.length < r)) break;
 	}
 	let c = bt(e),
 		l = (await t.delete(X).where(lt(X.windowStart, c)).returning({ id: X.id })).length,
 		p = st(e),
-		w = (await t.delete(Z).where(lt(Z.windowStart, p)).returning({ id: Z.id })).length;
+		g = (await t.delete(ee).where(lt(ee.windowStart, p)).returning({ id: ee.id })).length;
 	return (
-		console.log(`[cleanup] payloads=${i} attempts=${s} loginBuckets=${l} sendCounters=${w}`),
-		{ webhookPayloadsCleared: i, apiAttemptsDeleted: s, loginRateLimitRowsDeleted: l, sendCounterRowsDeleted: w }
+		console.log(`[cleanup] payloads=${i} attempts=${s} loginBuckets=${l} sendCounters=${g}`),
+		{ webhookPayloadsCleared: i, apiAttemptsDeleted: s, loginRateLimitRowsDeleted: l, sendCounterRowsDeleted: g }
 	);
 }
 import { and as _t, asc as Ko, eq as _e, lt as Sr, lte as qo, sql as Ho } from "npm:drizzle-orm@0.45.2";
-import { and as Lt, eq as P } from "npm:drizzle-orm@0.45.2";
+import { and as Lt, eq as M } from "npm:drizzle-orm@0.45.2";
 function or(t, e, n, r = "instagram") {
 	let o = r === "facebook" ? "comments" : "replies";
 	return t.post(`${e}/${o}`, { message: n });
@@ -2160,9 +2193,9 @@ function Oe(t, e) {
 	return (e.platform === "facebook" && e.recipientId && (o.messaging_type = "RESPONSE"), t.post(`${e.instagramAccountId}/messages`, o));
 }
 var Dt = [30, 120, 600],
-	Eo = Dt.length;
+	ko = Dt.length;
 function Se(t) {
-	return t < 0 ? Dt[0] : t >= Eo ? null : Dt[t];
+	return t < 0 ? Dt[0] : t >= ko ? null : Dt[t];
 }
 function Ne(t, e, n) {
 	if (n === "all_comments") return { matched: !0, matchedKeyword: null };
@@ -2173,19 +2206,19 @@ function Ne(t, e, n) {
 		}
 	return { matched: !1, matchedKeyword: null };
 }
-import { and as ko, eq as Mt } from "npm:drizzle-orm@0.45.2";
+import { and as Eo, eq as Mt } from "npm:drizzle-orm@0.45.2";
 async function Ue(t, e) {
 	let n = await t
 		.select()
-		.from(g)
-		.where(ko(Mt(g.automationId, e.automationId), Mt(g.instagramCommentId, e.instagramCommentId)))
+		.from(y)
+		.where(Eo(Mt(y.automationId, e.automationId), Mt(y.instagramCommentId, e.instagramCommentId)))
 		.limit(1);
 	if (n.length > 0) return { run: n[0], created: !1 };
 	let r = crypto.randomUUID(),
 		o = new Date().toISOString();
 	return (
 		await t
-			.insert(g)
+			.insert(y)
 			.values({
 				id: r,
 				automationId: e.automationId,
@@ -2200,7 +2233,7 @@ async function Ue(t, e) {
 				status: e.status,
 				startedAt: o,
 			}),
-		{ run: (await t.select().from(g).where(Mt(g.id, r)).limit(1))[0], created: !0 }
+		{ run: (await t.select().from(y).where(Mt(y.id, r)).limit(1))[0], created: !0 }
 	);
 }
 function ir(t, e = Math.random) {
@@ -2232,7 +2265,7 @@ function xo(t) {
 }
 async function be(t, e, n, r, o, a) {
 	await t
-		.insert(K)
+		.insert(H)
 		.values({
 			id: crypto.randomUUID(),
 			automationRunId: e,
@@ -2244,15 +2277,15 @@ async function be(t, e, n, r, o, a) {
 			metaErrorMessage: a.failure?.metaErrorMessage ?? null,
 			completedAt: new Date().toISOString(),
 		});
-	let s = (await t.select({ completedAt: K.completedAt, failureReason: K.failureReason }).from(K).orderBy(Ro(K.completedAt)).limit(To))
+	let s = (await t.select({ completedAt: H.completedAt, failureReason: H.failureReason }).from(H).orderBy(Ro(H.completedAt)).limit(To))
 			.filter((u) => u.completedAt != null)
 			.map((u) => ({ ok: u.failureReason == null, reason: u.failureReason ?? void 0, at: Date.parse(u.completedAt) })),
 		c = sr({ recentAttempts: s, now: Date.now(), dailySentCount: 0, dailyLimit: null });
 	if (c.open) {
-		let u = (await t.select().from(y).where(lr(y.id, n)).limit(1))[0];
+		let u = (await t.select().from(w).where(lr(w.id, n)).limit(1))[0];
 		u &&
 			u.circuitBreakerStatus === "closed" &&
-			(await t.update(y).set({ circuitBreakerStatus: "open", updatedAt: new Date().toISOString() }).where(lr(y.id, n)),
+			(await t.update(w).set({ circuitBreakerStatus: "open", updatedAt: new Date().toISOString() }).where(lr(w.id, n)),
 			await t
 				.insert(Y)
 				.values({
@@ -2265,7 +2298,7 @@ async function be(t, e, n, r, o, a) {
 				}));
 	}
 }
-import { and as ft, desc as vo, eq as R } from "npm:drizzle-orm@0.45.2";
+import { and as ft, desc as vo, eq as x } from "npm:drizzle-orm@0.45.2";
 function cr(t, e) {
 	return t.get(e, { fields: "username,name,is_user_follow_business" });
 }
@@ -2380,9 +2413,9 @@ function Bt(t) {
 			}
 			let m = c?.message;
 			if (m?.is_echo || m?.reply_to?.story?.id) continue;
-			let w = dr(c?.referral) || dr(m?.referral);
-			if (w) {
-				e.push({ ...p, kind: "referral", messageId: m?.mid != null ? String(m.mid) : "", text: typeof m?.text == "string" ? m.text : "", ref: w });
+			let g = dr(c?.referral) || dr(m?.referral);
+			if (g) {
+				e.push({ ...p, kind: "referral", messageId: m?.mid != null ? String(m.mid) : "", text: typeof m?.text == "string" ? m.text : "", ref: g });
 				continue;
 			}
 			m && typeof m.text == "string" && m.text.trim() && e.push({ ...p, kind: "text", messageId: m.mid != null ? String(m.mid) : "", text: m.text });
@@ -2417,10 +2450,10 @@ var ut = "CLAIM:",
 		notEmailHint: "這看起來不像 Email 喔，",
 	},
 	mt = (t, e, n) => ({ accountRowId: t.id, instagramAccountId: t.instagramAccountId, platform: t.platform, runId: e, automation: n });
-function Ee(t) {
+function ke(t) {
 	return t.followGateEnabled === 1 || t.emailCaptureEnabled === 1;
 }
-var ae = () => new Date().toISOString();
+var ie = () => new Date().toISOString();
 function Mo(t) {
 	try {
 		let e = JSON.parse(t ?? "[]");
@@ -2430,33 +2463,33 @@ function Mo(t) {
 	}
 }
 async function gt(t, e, n = {}) {
-	let r = ae(),
-		o = (await t.select().from(h).where(R(h.igsid, e)).limit(1))[0];
+	let r = ie(),
+		o = (await t.select().from(b).where(x(b.igsid, e)).limit(1))[0];
 	return (
 		o
 			? await t
-					.update(h)
+					.update(b)
 					.set({ username: n.username ?? o.username, name: n.name ?? o.name, lastSeenAt: r, updatedAt: r })
-					.where(R(h.igsid, e))
+					.where(x(b.igsid, e))
 			: await t
-					.insert(h)
+					.insert(b)
 					.values({ igsid: e, platform: n.platform ?? "instagram", username: n.username ?? null, name: n.name ?? null })
 					.onConflictDoNothing(),
-		(await t.select().from(h).where(R(h.igsid, e)).limit(1))[0]
+		(await t.select().from(b).where(x(b.igsid, e)).limit(1))[0]
 	);
 }
 async function Oo(t, e, n) {
 	let r = n?.trim();
 	if (!r) return;
-	let o = (await t.select().from(h).where(R(h.igsid, e)).limit(1))[0];
+	let o = (await t.select().from(b).where(x(b.igsid, e)).limit(1))[0];
 	if (!o) return;
 	let a = Mo(o.tags);
 	a.includes(r) ||
 		(a.push(r),
 		await t
-			.update(h)
-			.set({ tags: JSON.stringify(a), updatedAt: ae() })
-			.where(R(h.igsid, e)));
+			.update(b)
+			.set({ tags: JSON.stringify(a), updatedAt: ie() })
+			.where(x(b.igsid, e)));
 }
 async function yt(t, e, n) {
 	return (
@@ -2464,7 +2497,7 @@ async function yt(t, e, n) {
 			await t
 				.select({ id: W.id })
 				.from(W)
-				.where(ft(R(W.igsid, e), R(W.automationId, n)))
+				.where(ft(x(W.igsid, e), x(W.automationId, n)))
 				.limit(1)
 		).length > 0
 	);
@@ -2475,11 +2508,11 @@ async function Fe(t, e, n) {
 async function $e(t, e, n) {
 	await t
 		.update(W)
-		.set({ deliveredAt: ae() })
-		.where(ft(R(W.igsid, e), R(W.automationId, n)));
+		.set({ deliveredAt: ie() })
+		.where(ft(x(W.igsid, e), x(W.automationId, n)));
 }
 function wt(t) {
-	return Ee(t)
+	return ke(t)
 		? { text: t.openingDm ?? "", buttonText: t.claimButtonText || Ie.claimButtonText, postbackPayload: ut + t.id }
 		: { text: t.openingDm ?? "", buttonText: t.buttonText, buttonUrl: t.buttonUrl };
 }
@@ -2510,10 +2543,10 @@ async function $t(t, e, n) {
 	return (
 		(
 			await t
-				.select({ id: g.id })
-				.from(g)
-				.where(ft(R(g.automationId, e), R(g.commenterId, n)))
-				.orderBy(vo(g.createdAt))
+				.select({ id: y.id })
+				.from(y)
+				.where(ft(x(y.automationId, e), x(y.commenterId, n)))
+				.orderBy(vo(y.createdAt))
 				.limit(1)
 		)[0]?.id ?? null
 	);
@@ -2522,21 +2555,21 @@ async function Uo(t, e, n, r) {
 	let { db: o, metaClient: a } = t,
 		i = mt(e, await $t(o, r.id, n), r);
 	await Fe(o, n, r);
-	let s = (await o.select().from(h).where(R(h.igsid, n)).limit(1))[0];
+	let s = (await o.select().from(b).where(x(b.igsid, n)).limit(1))[0];
 	if (e.platform === "instagram" && (r.followGateEnabled === 1 || !s?.username)) {
 		let c = await cr(a, n);
 		if (c.ok && c.data) {
 			let u = c.data.is_user_follow_business;
 			if (
 				(await o
-					.update(h)
+					.update(b)
 					.set({
 						username: c.data.username ?? s?.username ?? null,
 						name: c.data.name ?? s?.name ?? null,
 						isFollower: typeof u == "boolean" ? (u ? 1 : 0) : (s?.isFollower ?? null),
-						updatedAt: ae(),
+						updatedAt: ie(),
 					})
-					.where(R(h.igsid, n)),
+					.where(x(b.igsid, n)),
 				r.followGateEnabled === 1 && u === !1)
 			) {
 				let l = await Be(t, i, n, {
@@ -2548,14 +2581,14 @@ async function Uo(t, e, n, r) {
 			}
 		}
 	}
-	if (r.emailCaptureEnabled === 1 && !(await o.select().from(h).where(R(h.igsid, n)).limit(1))[0]?.email) {
+	if (r.emailCaptureEnabled === 1 && !(await o.select().from(b).where(x(b.igsid, n)).limit(1))[0]?.email) {
 		let u = await Be(t, i, n, { text: r.emailPromptText || Ie.emailPromptText });
 		return (
 			u.ok &&
 				(await o
-					.update(h)
-					.set({ state: `awaiting_email:${r.id}`, updatedAt: ae() })
-					.where(R(h.igsid, n))),
+					.update(b)
+					.set({ state: `awaiting_email:${r.id}`, updatedAt: ie() })
+					.where(x(b.igsid, n))),
 			pt(u, "awaiting_email")
 		);
 	}
@@ -2569,13 +2602,13 @@ async function Bo(t, e) {
 	return t
 		.select()
 		.from(f)
-		.where(ft(R(f.applyScope, e), R(f.status, "active")));
+		.where(ft(x(f.applyScope, e), x(f.status, "active")));
 }
 async function fr(t, e, n, r) {
-	let o = de(n),
+	let o = ue(n),
 		a = (await Bo(t, e)).filter((i) => i.platform == null || i.platform === r).sort((i, s) => +(s.platform === r) - +(i.platform === r));
 	for (let i of a) {
-		let s = await t.select().from(N).where(R(N.automationId, i.id)),
+		let s = await t.select().from(U).where(x(U.automationId, i.id)),
 			c = e === "ref" ? "exact_any" : i.matchType;
 		if (e === "dm_keyword" && c === "all_comments") continue;
 		let u = Ne(
@@ -2610,30 +2643,30 @@ async function gr(t, e, n, r, o, a) {
 	let p = mt(e, c.id, s),
 		m = await Be(t, p, n.senderId, wt(s));
 	return m.ok
-		? (Ee(s) || (await $e(i, n.senderId, s.id)), await dt(i, c.id, "success"), { kind: "completed", step: Ee(s) ? "claim_button_sent" : "delivered" })
+		? (ke(s) || (await $e(i, n.senderId, s.id)), await dt(i, c.id, "success"), { kind: "completed", step: ke(s) ? "claim_button_sent" : "delivered" })
 		: m.retry
 			? (await i
-					.update(g)
-					.set({ retryCount: c.retryCount + 1, updatedAt: ae() })
-					.where(R(g.id, c.id)),
+					.update(y)
+					.set({ retryCount: c.retryCount + 1, updatedAt: ie() })
+					.where(x(y.id, c.id)),
 				{ kind: "retry", delaySeconds: Se(c.retryCount), reason: m.reason })
 			: (await dt(i, c.id, "failed"), { kind: "skipped", reason: m.reason });
 }
 async function dt(t, e, n) {
 	await t
-		.update(g)
+		.update(y)
 		.set({
 			status: n === "failed" ? "completed_with_errors" : "completed",
 			publicReplyStatus: "skipped",
 			privateReplyStatus: n,
-			completedAt: ae(),
-			updatedAt: ae(),
+			completedAt: ie(),
+			updatedAt: ie(),
 		})
-		.where(R(g.id, e));
+		.where(x(y.id, e));
 }
 async function wr(t, e) {
 	let { db: n } = t,
-		r = (await n.select().from(C).where(R(C.id, e.webhookEventId)).limit(1))[0];
+		r = (await n.select().from(D).where(x(D.id, e.webhookEventId)).limit(1))[0];
 	if (!r) return { kind: "skipped", reason: "webhook_event_not_found" };
 	let o;
 	try {
@@ -2643,7 +2676,7 @@ async function wr(t, e) {
 	}
 	let a = pr(o, e.instagramCommentId);
 	if (!a) return { kind: "skipped", reason: "message_not_in_payload" };
-	if ((await n.select().from(H).limit(1))[0]?.emergencyStop === 1) return { kind: "skipped", reason: "emergency_stop" };
+	if ((await n.select().from(j).limit(1))[0]?.emergencyStop === 1) return { kind: "skipped", reason: "emergency_stop" };
 	let s = await yn(n, a.instagramAccountId, a.platform);
 	if (!s) return { kind: "skipped", reason: "account_not_found" };
 	if (s.automationEnabled === 0) return { kind: "skipped", reason: "account_disabled" };
@@ -2653,7 +2686,7 @@ async function wr(t, e) {
 	if (a.kind === "postback") {
 		if (!a.payload.startsWith(ut)) return { kind: "no_match" };
 		let p = a.payload.slice(ut.length),
-			m = (await n.select().from(f).where(R(f.id, p)).limit(1))[0];
+			m = (await n.select().from(f).where(x(f.id, p)).limit(1))[0];
 		return !m || m.status !== "active" ? { kind: "skipped", reason: "automation_inactive" } : Uo(t, s, a.senderId, m);
 	}
 	if (a.kind === "referral") {
@@ -2665,27 +2698,27 @@ async function wr(t, e) {
 	if (u) {
 		let p = a.text.match(Do);
 		if (p) {
-			await n.update(h).set({ email: p[0].toLowerCase(), state: null, updatedAt: ae() }).where(R(h.igsid, a.senderId));
-			let m = (await n.select().from(f).where(R(f.id, u)).limit(1))[0];
+			await n.update(b).set({ email: p[0].toLowerCase(), state: null, updatedAt: ie() }).where(x(b.igsid, a.senderId));
+			let m = (await n.select().from(f).where(x(f.id, u)).limit(1))[0];
 			if (!m || m.status !== "active") return { kind: "completed", step: "email_saved" };
-			let w = mt(s, await $t(n, m.id, a.senderId), m);
-			return yr(t, w, a.senderId, m);
+			let g = mt(s, await $t(n, m.id, a.senderId), m);
+			return yr(t, g, a.senderId, m);
 		}
 	}
 	let l = await fr(n, "dm_keyword", a.text, a.platform);
 	if (l) return gr(t, s, a, e.instagramCommentId, r.id, l);
 	if (u) {
-		let p = (await n.select().from(f).where(R(f.id, u)).limit(1))[0];
+		let p = (await n.select().from(f).where(x(f.id, u)).limit(1))[0];
 		if (p && p.status === "active") {
 			let m = mt(s, await $t(n, p.id, a.senderId), p),
-				w = await Be(t, m, a.senderId, { text: Ie.notEmailHint + (p.emailPromptText || Ie.emailPromptText) });
-			return pt(w, "email_hint");
+				g = await Be(t, m, a.senderId, { text: Ie.notEmailHint + (p.emailPromptText || Ie.emailPromptText) });
+			return pt(g, "email_hint");
 		}
 	}
 	return { kind: "no_match" };
 }
 async function Fo(t, e, n, r = "instagram") {
-	let o = await j(t, r);
+	let o = await G(t, r);
 	if (!o) return null;
 	if (r === "facebook") {
 		let s = await e.get(n, { fields: "id,message,full_picture,permalink_url,created_time,status_type" });
@@ -2706,7 +2739,7 @@ async function Fo(t, e, n, r = "instagram") {
 						lastSyncedAt: new Date().toISOString(),
 					})
 					.onConflictDoNothing(),
-				(await t.select().from(_).where(P(_.instagramMediaId, s.data.id)).limit(1))[0] ?? null);
+				(await t.select().from(_).where(M(_.instagramMediaId, s.data.id)).limit(1))[0] ?? null);
 	}
 	let a = await e.get(n, { fields: "id,media_type,caption,thumbnail_url,media_url,permalink,timestamp" });
 	return !a.ok || !a.data?.id
@@ -2725,10 +2758,10 @@ async function Fo(t, e, n, r = "instagram") {
 					lastSyncedAt: new Date().toISOString(),
 				})
 				.onConflictDoNothing(),
-			(await t.select().from(_).where(P(_.instagramMediaId, a.data.id)).limit(1))[0] ?? null);
+			(await t.select().from(_).where(M(_.instagramMediaId, a.data.id)).limit(1))[0] ?? null);
 }
 async function $o(t, e, n) {
-	let r = await j(t, "instagram");
+	let r = await G(t, "instagram");
 	if (!r) return null;
 	let o = await e.get(n, { fields: "id,media_type,media_url,thumbnail_url,timestamp" });
 	return !o.ok || !o.data?.id
@@ -2745,11 +2778,11 @@ async function $o(t, e, n) {
 					lastSyncedAt: new Date().toISOString(),
 				})
 				.onConflictDoNothing(),
-			(await t.select().from(_).where(P(_.instagramMediaId, o.data.id)).limit(1))[0] ?? null);
+			(await t.select().from(_).where(M(_.instagramMediaId, o.data.id)).limit(1))[0] ?? null);
 }
 async function _r(t, e) {
 	let { db: n } = t,
-		r = await n.select().from(C).where(P(C.id, e.webhookEventId)).limit(1);
+		r = await n.select().from(D).where(M(D.id, e.webhookEventId)).limit(1);
 	if (r.length === 0) return { kind: "skipped", reason: "webhook_event_not_found" };
 	let o;
 	try {
@@ -2761,16 +2794,16 @@ async function _r(t, e) {
 	if (!a || !a.instagramCommentId || !a.instagramMediaId) return { kind: "skipped", reason: "comment_not_in_payload" };
 	let i = tt(t, a.platform);
 	if (!i) return { kind: "skipped", reason: "facebook_not_configured" };
-	let s = await n.select().from(H).limit(1);
+	let s = await n.select().from(j).limit(1);
 	if (s.length > 0 && s[0].emergencyStop === 1) return { kind: "skipped", reason: "emergency_stop" };
-	let c = await n.select().from(_).where(P(_.instagramMediaId, e.instagramMediaId)).limit(1);
+	let c = await n.select().from(_).where(M(_.instagramMediaId, e.instagramMediaId)).limit(1);
 	if (c.length === 0) {
-		let S = await Fo(n, i, e.instagramMediaId, a.platform);
-		if (!S) return { kind: "skipped", reason: "media_not_found" };
-		c = [S];
+		let k = await Fo(n, i, e.instagramMediaId, a.platform);
+		if (!k) return { kind: "skipped", reason: "media_not_found" };
+		c = [k];
 	}
 	let u = c[0],
-		l = await n.select().from(y).where(P(y.id, u.instagramAccountId)).limit(1);
+		l = await n.select().from(w).where(M(w.id, u.instagramAccountId)).limit(1);
 	if (l.length === 0) return { kind: "skipped", reason: "account_not_found" };
 	let p = l[0];
 	if (p.automationEnabled === 0) return { kind: "skipped", reason: "account_disabled" };
@@ -2778,17 +2811,17 @@ async function _r(t, e) {
 	let m = await Ln(n, u);
 	if (!m) return { kind: "skipped", reason: "no_active_automation" };
 	if (m.excludeOwnComments === 1 && a.commenterId && a.commenterId === a.instagramAccountId) return { kind: "skipped", reason: "own_comment" };
-	let w = de(a.text),
-		k = (await n.select().from(N).where(P(N.automationId, m.id))).map((S) => S.normalizedKeyword),
-		M = Ne(w, k, m.matchType);
-	if (!M.matched) return { kind: "no_match" };
+	let g = ue(a.text),
+		h = (await n.select().from(U).where(M(U.automationId, m.id))).map((k) => k.normalizedKeyword),
+		A = Ne(g, h, m.matchType);
+	if (!A.matched) return { kind: "no_match" };
 	if (a.commenterId) {
 		if (
 			(
 				await n
-					.select({ id: g.id })
-					.from(g)
-					.where(Lt(P(g.automationId, m.id), P(g.instagramCommentId, a.instagramCommentId)))
+					.select({ id: y.id })
+					.from(y)
+					.where(Lt(M(y.automationId, m.id), M(y.instagramCommentId, a.instagramCommentId)))
 					.limit(1)
 			).length === 0 &&
 			m.oncePerContact === 1 &&
@@ -2802,7 +2835,7 @@ async function _r(t, e) {
 		}),
 			await Fe(n, a.commenterId, m));
 	}
-	let { run: I } = await Ue(n, {
+	let { run: S } = await Ue(n, {
 			automationId: m.id,
 			webhookEventId: e.webhookEventId,
 			instagramCommentId: a.instagramCommentId,
@@ -2810,67 +2843,67 @@ async function _r(t, e) {
 			commenterId: a.commenterId,
 			commenterUsername: a.commenterUsername,
 			originalCommentText: a.text,
-			normalizedCommentText: w,
-			matchedKeyword: M.matchedKeyword,
+			normalizedCommentText: g,
+			matchedKeyword: A.matchedKeyword,
 			status: "matched",
 		}),
-		v = I.publicReplyStatus ?? "pending",
-		V = I.privateReplyStatus ?? "pending",
-		oe = !1,
-		ie = I.retryCount + 1;
-	if (v === "pending")
-		if (m.publicReplyEnabled === 0) v = "skipped";
+		T = S.publicReplyStatus ?? "pending",
+		v = S.privateReplyStatus ?? "pending",
+		Z = !1,
+		se = S.retryCount + 1;
+	if (T === "pending")
+		if (m.publicReplyEnabled === 0) T = "skipped";
 		else {
-			let S = await n.select().from(te).where(P(te.automationId, m.id)),
-				ee = ir(S.map((F) => ({ id: F.id, message: F.message, enabled: F.enabled === 1 })));
-			if (!ee) v = "skipped";
-			else if (!(await we(n, { actionType: "public_reply", automationId: m.id, automationDailyLimit: m.dailyLimit })).allowed) v = "skipped";
+			let k = await n.select().from(re).where(M(re.automationId, m.id)),
+				ne = ir(k.map((L) => ({ id: L.id, message: L.message, enabled: L.enabled === 1 })));
+			if (!ne) T = "skipped";
+			else if (!(await we(n, { actionType: "public_reply", automationId: m.id, automationDailyLimit: m.dailyLimit })).allowed) T = "skipped";
 			else {
-				let F = await or(i, a.instagramCommentId, ee.message, a.platform);
-				(await be(n, I.id, p.id, "public_reply", ie, F),
-					F.ok
-						? ((v = "success"), await n.update(g).set({ publicReplyMessage: ee.message }).where(P(g.id, I.id)))
-						: F.failure && fe(F.failure)
-							? (oe = !0)
-							: (v = "failed"));
+				let L = await or(i, a.instagramCommentId, ne.message, a.platform);
+				(await be(n, S.id, p.id, "public_reply", se, L),
+					L.ok
+						? ((T = "success"), await n.update(y).set({ publicReplyMessage: ne.message }).where(M(y.id, S.id)))
+						: L.failure && fe(L.failure)
+							? (Z = !0)
+							: (T = "failed"));
 			}
 		}
-	if (V === "pending")
-		if (m.privateReplyEnabled === 0 || !m.openingDm) V = "skipped";
-		else if (!(await we(n, { actionType: "private_reply", automationId: m.id, automationDailyLimit: m.dailyLimit })).allowed) V = "skipped";
+	if (v === "pending")
+		if (m.privateReplyEnabled === 0 || !m.openingDm) v = "skipped";
+		else if (!(await we(n, { actionType: "private_reply", automationId: m.id, automationDailyLimit: m.dailyLimit })).allowed) v = "skipped";
 		else {
-			let S = await Oe(i, { instagramAccountId: a.instagramAccountId, commentId: a.instagramCommentId, ...wt(m), platform: a.platform });
-			(await be(n, I.id, p.id, "private_reply", ie, S),
-				S.ok
-					? ((V = "success"), !Ee(m) && a.commenterId && (await $e(n, a.commenterId, m.id)))
-					: (S.failure && fe(S.failure)) || (S.failure && S.failure.httpStatus === 400 && !Pe.has(S.failure.nonRetryableReason ?? ""))
-						? (oe = !0)
-						: (V = "failed"));
+			let k = await Oe(i, { instagramAccountId: a.instagramAccountId, commentId: a.instagramCommentId, ...wt(m), platform: a.platform });
+			(await be(n, S.id, p.id, "private_reply", se, k),
+				k.ok
+					? ((v = "success"), !ke(m) && a.commenterId && (await $e(n, a.commenterId, m.id)))
+					: (k.failure && fe(k.failure)) || (k.failure && k.failure.httpStatus === 400 && !Pe.has(k.failure.nonRetryableReason ?? ""))
+						? (Z = !0)
+						: (v = "failed"));
 		}
-	if (oe && (v === "pending" || V === "pending")) {
-		let S = Se(I.retryCount);
+	if (Z && (T === "pending" || v === "pending")) {
+		let k = Se(S.retryCount);
 		return (
 			await n
-				.update(g)
-				.set({ retryCount: I.retryCount + 1, publicReplyStatus: v, privateReplyStatus: V, updatedAt: new Date().toISOString() })
-				.where(P(g.id, I.id)),
-			{ kind: "retry", delaySeconds: S, runId: I.id, reason: "retryable_meta_error" }
+				.update(y)
+				.set({ retryCount: S.retryCount + 1, publicReplyStatus: T, privateReplyStatus: v, updatedAt: new Date().toISOString() })
+				.where(M(y.id, S.id)),
+			{ kind: "retry", delaySeconds: k, runId: S.id, reason: "retryable_meta_error" }
 		);
 	}
-	let D = v === "pending" ? "failed" : v,
-		he = V === "pending" ? "failed" : V,
-		A = D === "failed" || he === "failed" ? "completed_with_errors" : "completed";
+	let O = T === "pending" ? "failed" : T,
+		he = v === "pending" ? "failed" : v,
+		I = O === "failed" || he === "failed" ? "completed_with_errors" : "completed";
 	return (
 		await n
-			.update(g)
-			.set({ status: A, publicReplyStatus: D, privateReplyStatus: he, completedAt: new Date().toISOString(), updatedAt: new Date().toISOString() })
-			.where(P(g.id, I.id)),
-		{ kind: "completed", runId: I.id, publicReplyStatus: D, privateReplyStatus: he }
+			.update(y)
+			.set({ status: I, publicReplyStatus: O, privateReplyStatus: he, completedAt: new Date().toISOString(), updatedAt: new Date().toISOString() })
+			.where(M(y.id, S.id)),
+		{ kind: "completed", runId: S.id, publicReplyStatus: O, privateReplyStatus: he }
 	);
 }
 async function hr(t, e) {
 	let { db: n, metaClient: r } = t,
-		o = await n.select().from(C).where(P(C.id, e.webhookEventId)).limit(1);
+		o = await n.select().from(D).where(M(D.id, e.webhookEventId)).limit(1);
 	if (o.length === 0) return { kind: "skipped", reason: "webhook_event_not_found" };
 	let a;
 	try {
@@ -2880,98 +2913,98 @@ async function hr(t, e) {
 	}
 	let i = mr(a, e.instagramCommentId);
 	if (!i || !i.messageId || !i.storyId) return { kind: "skipped", reason: "story_reply_not_in_payload" };
-	let s = await n.select().from(H).limit(1);
+	let s = await n.select().from(j).limit(1);
 	if (s.length > 0 && s[0].emergencyStop === 1) return { kind: "skipped", reason: "emergency_stop" };
-	let c = await n.select().from(_).where(P(_.instagramMediaId, i.storyId)).limit(1);
+	let c = await n.select().from(_).where(M(_.instagramMediaId, i.storyId)).limit(1);
 	if (c.length === 0) {
-		let D = await $o(n, r, i.storyId);
-		if (!D) return { kind: "skipped", reason: "story_not_found" };
-		c = [D];
+		let O = await $o(n, r, i.storyId);
+		if (!O) return { kind: "skipped", reason: "story_not_found" };
+		c = [O];
 	}
 	let u = c[0];
 	if (u.deletedAt) return { kind: "skipped", reason: "story_expired" };
-	let l = await n.select().from(y).where(P(y.id, u.instagramAccountId)).limit(1);
+	let l = await n.select().from(w).where(M(w.id, u.instagramAccountId)).limit(1);
 	if (l.length === 0) return { kind: "skipped", reason: "account_not_found" };
 	let p = l[0];
 	if (p.automationEnabled === 0) return { kind: "skipped", reason: "account_disabled" };
 	if (p.circuitBreakerStatus !== "closed") return { kind: "skipped", reason: "circuit_open" };
-	let w = (
+	let g = (
 		await n
 			.select()
 			.from(f)
-			.where(Lt(P(f.instagramMediaId, u.id), P(f.status, "active")))
+			.where(Lt(M(f.instagramMediaId, u.id), M(f.status, "active")))
 			.limit(1)
 	)[0];
-	if (!w) return { kind: "skipped", reason: "no_active_automation" };
+	if (!g) return { kind: "skipped", reason: "no_active_automation" };
 	if (i.senderId && i.senderId === p.instagramAccountId) return { kind: "skipped", reason: "own_message" };
-	let E = de(i.text),
-		k = await n.select().from(N).where(P(N.automationId, w.id)),
-		M = Ne(
-			E,
-			k.map((D) => D.normalizedKeyword),
-			w.matchType,
+	let R = ue(i.text),
+		h = await n.select().from(U).where(M(U.automationId, g.id)),
+		A = Ne(
+			R,
+			h.map((O) => O.normalizedKeyword),
+			g.matchType,
 		);
-	if (!M.matched) return { kind: "no_match" };
+	if (!A.matched) return { kind: "no_match" };
 	if (i.senderId) {
 		if (
 			(
 				await n
-					.select({ id: g.id })
-					.from(g)
-					.where(Lt(P(g.automationId, w.id), P(g.instagramCommentId, i.messageId)))
+					.select({ id: y.id })
+					.from(y)
+					.where(Lt(M(y.automationId, g.id), M(y.instagramCommentId, i.messageId)))
 					.limit(1)
 			).length === 0 &&
-			w.oncePerContact === 1 &&
-			(await yt(n, i.senderId, w.id))
+			g.oncePerContact === 1 &&
+			(await yt(n, i.senderId, g.id))
 		)
 			return { kind: "skipped", reason: "once_per_contact" };
-		(await gt(n, i.senderId), await Fe(n, i.senderId, w));
+		(await gt(n, i.senderId), await Fe(n, i.senderId, g));
 	}
-	let { run: I } = await Ue(n, {
-			automationId: w.id,
+	let { run: S } = await Ue(n, {
+			automationId: g.id,
 			webhookEventId: e.webhookEventId,
 			instagramCommentId: i.messageId,
 			instagramMediaId: u.instagramMediaId,
 			commenterId: i.senderId || null,
 			commenterUsername: null,
 			originalCommentText: i.text,
-			normalizedCommentText: E,
-			matchedKeyword: M.matchedKeyword,
+			normalizedCommentText: R,
+			matchedKeyword: A.matchedKeyword,
 			status: "matched",
 		}),
-		v = I.privateReplyStatus ?? "pending",
-		V = !1,
-		oe = I.retryCount + 1;
-	if (v === "pending")
-		if (w.privateReplyEnabled === 0 || !w.openingDm || !i.senderId) v = "skipped";
-		else if (!(await we(n, { actionType: "private_reply", automationId: w.id, automationDailyLimit: w.dailyLimit })).allowed) v = "skipped";
+		T = S.privateReplyStatus ?? "pending",
+		v = !1,
+		Z = S.retryCount + 1;
+	if (T === "pending")
+		if (g.privateReplyEnabled === 0 || !g.openingDm || !i.senderId) T = "skipped";
+		else if (!(await we(n, { actionType: "private_reply", automationId: g.id, automationDailyLimit: g.dailyLimit })).allowed) T = "skipped";
 		else {
-			let D = await Oe(r, { instagramAccountId: i.instagramAccountId, recipientId: i.senderId, ...wt(w) });
-			(await be(n, I.id, p.id, "private_reply", oe, D),
-				D.ok
-					? ((v = "success"), Ee(w) || (await $e(n, i.senderId, w.id)))
-					: (D.failure && fe(D.failure)) || (D.failure && D.failure.httpStatus === 400 && !Pe.has(D.failure.nonRetryableReason ?? ""))
-						? (V = !0)
-						: (v = "failed"));
+			let O = await Oe(r, { instagramAccountId: i.instagramAccountId, recipientId: i.senderId, ...wt(g) });
+			(await be(n, S.id, p.id, "private_reply", Z, O),
+				O.ok
+					? ((T = "success"), ke(g) || (await $e(n, i.senderId, g.id)))
+					: (O.failure && fe(O.failure)) || (O.failure && O.failure.httpStatus === 400 && !Pe.has(O.failure.nonRetryableReason ?? ""))
+						? (v = !0)
+						: (T = "failed"));
 		}
-	if (V && v === "pending") {
-		let D = Se(I.retryCount);
+	if (v && T === "pending") {
+		let O = Se(S.retryCount);
 		return (
 			await n
-				.update(g)
-				.set({ retryCount: I.retryCount + 1, publicReplyStatus: "skipped", privateReplyStatus: v, updatedAt: new Date().toISOString() })
-				.where(P(g.id, I.id)),
-			{ kind: "retry", delaySeconds: D, runId: I.id, reason: "retryable_meta_error" }
+				.update(y)
+				.set({ retryCount: S.retryCount + 1, publicReplyStatus: "skipped", privateReplyStatus: T, updatedAt: new Date().toISOString() })
+				.where(M(y.id, S.id)),
+			{ kind: "retry", delaySeconds: O, runId: S.id, reason: "retryable_meta_error" }
 		);
 	}
-	let ie = v === "pending" ? "failed" : v,
-		Le = ie === "failed" ? "completed_with_errors" : "completed";
+	let se = T === "pending" ? "failed" : T,
+		Le = se === "failed" ? "completed_with_errors" : "completed";
 	return (
 		await n
-			.update(g)
-			.set({ status: Le, publicReplyStatus: "skipped", privateReplyStatus: ie, completedAt: new Date().toISOString(), updatedAt: new Date().toISOString() })
-			.where(P(g.id, I.id)),
-		{ kind: "completed", runId: I.id, publicReplyStatus: "skipped", privateReplyStatus: ie }
+			.update(y)
+			.set({ status: Le, publicReplyStatus: "skipped", privateReplyStatus: se, completedAt: new Date().toISOString(), updatedAt: new Date().toISOString() })
+			.where(M(y.id, S.id)),
+		{ kind: "completed", runId: S.id, publicReplyStatus: "skipped", privateReplyStatus: se }
 	);
 }
 function Lo(t) {
@@ -2986,7 +3019,7 @@ function br(t, e) {
 		async send(n, r) {
 			let o = Date.now();
 			(await t
-				.insert(x)
+				.insert(P)
 				.values({
 					id: crypto.randomUUID(),
 					message: JSON.stringify(n),
@@ -3006,23 +3039,23 @@ async function ht(t, e = {}) {
 		o = e.limit ?? 20,
 		a = { processed: 0, done: 0, retried: 0, failed: 0 };
 	await n
-		.update(x)
+		.update(P)
 		.set({ status: "pending", updatedAt: new Date(r()).toISOString() })
-		.where(_t(_e(x.status, "running"), Sr(x.updatedAt, new Date(r() - Go).toISOString())));
+		.where(_t(_e(P.status, "running"), Sr(P.updatedAt, new Date(r() - Go).toISOString())));
 	let i = await n
-		.select({ id: x.id })
-		.from(x)
-		.where(_t(_e(x.status, "pending"), qo(x.nextRunAt, new Date(r()).toISOString())))
-		.orderBy(Ko(x.nextRunAt))
+		.select({ id: P.id })
+		.from(P)
+		.where(_t(_e(P.status, "pending"), qo(P.nextRunAt, new Date(r()).toISOString())))
+		.orderBy(Ko(P.nextRunAt))
 		.limit(o);
 	if (i.length === 0) return a;
 	let s = e.deps ?? { db: n, ...(await gn(n, t)) };
 	for (let { id: c } of i) {
 		let l = (
 			await n
-				.update(x)
+				.update(P)
 				.set({ status: "running", updatedAt: new Date(r()).toISOString() })
-				.where(_t(_e(x.id, c), _e(x.status, "pending")))
+				.where(_t(_e(P.id, c), _e(P.status, "pending")))
 				.returning()
 		)[0];
 		if (!l) continue;
@@ -3030,26 +3063,26 @@ async function ht(t, e = {}) {
 		let p,
 			m = null;
 		try {
-			let E = JSON.parse(l.message),
-				k = await Wo(s, E);
-			k.kind === "retry" && k.delaySeconds !== null && ((p = k.delaySeconds), (m = k.reason));
-		} catch (E) {
-			((p = null), (m = E?.name ?? "Error"));
+			let R = JSON.parse(l.message),
+				h = await Wo(s, R);
+			h.kind === "retry" && h.delaySeconds !== null && ((p = h.delaySeconds), (m = h.reason));
+		} catch (R) {
+			((p = null), (m = R?.name ?? "Error"));
 		}
-		let w = new Date(r()).toISOString();
-		if (p === void 0) (await n.update(x).set({ status: "done", updatedAt: w }).where(_e(x.id, c)), (a.done += 1));
+		let g = new Date(r()).toISOString();
+		if (p === void 0) (await n.update(P).set({ status: "done", updatedAt: g }).where(_e(P.id, c)), (a.done += 1));
 		else if (l.attempts >= jo)
 			(await n
-				.update(x)
-				.set({ status: "failed", attempts: l.attempts + 1, lastError: m, updatedAt: w })
-				.where(_e(x.id, c)),
+				.update(P)
+				.set({ status: "failed", attempts: l.attempts + 1, lastError: m, updatedAt: g })
+				.where(_e(P.id, c)),
 				(a.failed += 1));
 		else {
-			let E = p ?? Ar[Math.min(l.attempts, Ar.length - 1)];
+			let R = p ?? Ar[Math.min(l.attempts, Ar.length - 1)];
 			(await n
-				.update(x)
-				.set({ status: "pending", attempts: l.attempts + 1, lastError: m, nextRunAt: new Date(r() + E * 1e3).toISOString(), updatedAt: w })
-				.where(_e(x.id, c)),
+				.update(P)
+				.set({ status: "pending", attempts: l.attempts + 1, lastError: m, nextRunAt: new Date(r() + R * 1e3).toISOString(), updatedAt: g })
+				.where(_e(P.id, c)),
 				(a.retried += 1));
 		}
 	}
@@ -3059,12 +3092,12 @@ async function Ir(t, e = Date.now()) {
 	let n = new Date(e - Vo * 864e5).toISOString();
 	return (
 		await t
-			.delete(x)
-			.where(_t(Ho`${x.status} in ('done', 'failed')`, Sr(x.updatedAt, n)))
-			.returning({ id: x.id })
+			.delete(P)
+			.where(_t(Ho`${P.status} in ('done', 'failed')`, Sr(P.updatedAt, n)))
+			.returning({ id: P.id })
 	).length;
 }
-function Er(t, e) {
+function kr(t, e) {
 	let n = new TextEncoder(),
 		r = n.encode(t),
 		o = n.encode(e),
@@ -3073,14 +3106,14 @@ function Er(t, e) {
 	for (let s = 0; s < i; s++) a |= (r[s] ?? 0) ^ (o[s] ?? 0);
 	return a === 0;
 }
-function kr() {
+function Er() {
 	let t = new zo();
 	return (
 		t.use("*", async (e, n) => {
 			let r = e.env.CRON_SECRET?.trim(),
 				o = e.req.header("Authorization") ?? "",
 				a = o.startsWith("Bearer ") ? o.slice(7).trim() : "";
-			return !r || !a || !Er(a, r) ? e.json({ error: "unauthorized" }, 401) : n();
+			return !r || !a || !kr(a, r) ? e.json({ error: "unauthorized" }, 401) : n();
 		}),
 		t.post("/tick", async (e) => e.json(await ht(e.env))),
 		t.post("/sync", async (e) => e.json(await it(e.env))),
@@ -3221,17 +3254,17 @@ async function Pr(t) {
 	}
 	let u = t.env.DB;
 	for (let l of c) {
-		let p = await u.select().from(C).where(Cr(C.eventKey, l.eventKey)).limit(1);
+		let p = await u.select().from(D).where(Cr(D.eventKey, l.eventKey)).limit(1);
 		if (p.length > 0) {
 			await u
-				.update(C)
+				.update(D)
 				.set({ duplicateCount: p[0].duplicateCount + 1, lastReceivedAt: new Date().toISOString() })
-				.where(Cr(C.id, p[0].id));
+				.where(Cr(D.id, p[0].id));
 			continue;
 		}
 		let m = crypto.randomUUID();
 		(await u
-			.insert(C)
+			.insert(D)
 			.values({
 				id: m,
 				eventKey: l.eventKey,
@@ -3276,7 +3309,7 @@ function Mr() {
 			return r ? e.redirect(r.replace(/\/$/, "") + "/CHAT/", 302) : e.text("IG／FB 自動私訊 API 運作中", 200);
 		}),
 		t.use("/api/admin/*", async (e, n) => {
-			let r = ke(e.env.ADMIN_ORIGINS);
+			let r = Ee(e.env.ADMIN_ORIGINS);
 			return ti({
 				origin: (o) => (r.includes(o) ? o : null),
 				allowMethods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
@@ -3295,7 +3328,7 @@ function Mr() {
 		t.get("/privacy", (e) => e.html(Rr(e.env.PRIVACY_CONTACT))),
 		t.route("/api/admin", Jn()),
 		t.route("/api/webhooks", Dr()),
-		t.route("/api/internal", kr()),
+		t.route("/api/internal", Er()),
 		t.route("/api/oauth", On()),
 		t
 	);

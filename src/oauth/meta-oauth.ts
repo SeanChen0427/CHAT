@@ -24,6 +24,9 @@ export const FACEBOOK_SCOPES = [
   'pages_manage_metadata',
   'pages_read_engagement',
   'pages_manage_engagement',
+  'pages_read_user_content',
+  // 粉專放在「商家資產組合」時，/me/accounts 會是空的，要透過商家才讀得到粉專。
+  'business_management',
 ];
 export const INSTAGRAM_WEBHOOK_FIELDS = 'comments,messages,messaging_postbacks,messaging_referral';
 export const PAGE_WEBHOOK_FIELDS = 'feed,messages,messaging_postbacks,messaging_referrals';
@@ -215,19 +218,52 @@ export async function exchangeFacebookCode(env: Env, code: string): Promise<Face
   if (!r2.ok || typeof b2?.access_token !== 'string') {
     throw new OAuthError('exchange_failed', `Facebook 換長效權杖失敗：${metaMessage(b2) || `HTTP ${r2.status}`}`);
   }
-  const q3 = new URLSearchParams({ fields: 'id,name,access_token,picture{url}', limit: '100', access_token: b2.access_token });
-  const r3 = await fetch(`${base}/me/accounts?${q3}`);
+  const token = b2.access_token as string;
+  const fields = 'id,name,access_token,picture{url}';
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const toPages = (list: any): FacebookPage[] =>
+    (Array.isArray(list) ? list : [])
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      .filter((p: any) => typeof p?.id === 'string' && typeof p?.access_token === 'string')
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      .map((p: any) => ({ id: p.id, name: p.name ?? p.id, accessToken: p.access_token, pictureUrl: p.picture?.data?.url ?? null }));
+
+  const r3 = await fetch(`${base}/me/accounts?${new URLSearchParams({ fields, limit: '100', access_token: token })}`);
   const b3 = await readJson(r3);
   if (!r3.ok || !Array.isArray(b3?.data)) {
     throw new OAuthError('pages_failed', `讀取粉專清單失敗：${metaMessage(b3) || `HTTP ${r3.status}`}`);
   }
-  return (
-    b3.data
+  const pages = new Map(toPages(b3.data).map((p) => [p.id, p]));
+
+  // Sean 版：粉專在商家資產組合（Business）底下時，個人的粉專清單是空的，改從商家擁有／代管的粉專找。
+  if (pages.size === 0) {
+    const rb = await fetch(`${base}/me/businesses?${new URLSearchParams({ fields: 'id', limit: '50', access_token: token })}`);
+    const bb = await readJson(rb);
+    for (const biz of Array.isArray(bb?.data) ? bb.data : []) {
+      for (const edge of ['owned_pages', 'client_pages']) {
+        const re = await fetch(`${base}/${biz.id}/${edge}?${new URLSearchParams({ fields, limit: '100', access_token: token })}`);
+        for (const p of toPages((await readJson(re))?.data)) pages.set(p.id, p);
+      }
+    }
+  }
+
+  if (pages.size === 0) {
+    // 找不到粉專時，列出沒被允許的權限，讓使用者知道授權畫面要勾什麼。
+    const rp = await fetch(`${base}/me/permissions?${new URLSearchParams({ access_token: token })}`);
+    const bp = await readJson(rp);
+    const granted = new Set(
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      .filter((p: any) => typeof p?.id === 'string' && typeof p?.access_token === 'string')
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      .map((p: any) => ({ id: p.id, name: p.name ?? p.id, accessToken: p.access_token, pictureUrl: p.picture?.data?.url ?? null }))
-  );
+      (Array.isArray(bp?.data) ? bp.data : []).filter((x: any) => x?.status === 'granted').map((x: any) => x.permission),
+    );
+    const missing = ['pages_show_list', 'pages_messaging', 'business_management'].filter((x) => !granted.has(x));
+    throw new OAuthError(
+      'no_pages',
+      missing.length
+        ? `找不到可管理的粉專：授權時沒有允許 ${missing.join('、')}。請再按一次連結，授權畫面選「編輯存取權限」，勾選你的粉專與商家資產組合，並允許所有權限`
+        : '找不到可管理的粉專：請確認登入的 Facebook 帳號是粉專管理員，授權畫面選「編輯存取權限」並勾選你的粉專',
+    );
+  }
+  return [...pages.values()];
 }
 
 // App 層級的事件通知設定（回呼網址＋驗證權杖＋訂閱欄位）。回傳 null 表示成功，否則為錯誤說明。
