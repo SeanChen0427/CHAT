@@ -37,7 +37,7 @@ Sean 要的是網頁工具，不在自己電腦安裝任何東西。上游原本
 
 跨網域後台的處理：後台（github.io）與 API（supabase.co）不同網域，瀏覽器不帶第三方 Cookie，因此登入／初始設定回傳 `token`，前端存在 localStorage，每次請求帶 `Authorization: Bearer`（`requireAdminAuth` 先讀 Bearer，沒有才讀 Cookie）。`ADMIN_ORIGINS`（預設 `https://seanchen0427.github.io`）同時用於 CORS 與 CSRF 允許來源。
 
-部署方式：`npm run build:function` 把 `src/` 打包成 `supabase/functions/api/index.ts`（第三方套件改寫成 `npm:套件@版本`，不打包），此檔要提交；以 Supabase MCP 的 deploy_edge_function 或 `.github/workflows/deploy-function.yml`（需 repo secret `SUPABASE_ACCESS_TOKEN`）部署。資料庫結構改動：改 `src/database/schema.ts` → `npm run db:generate` → 把新 migration 套用到 Supabase。
+部署方式：`npm run build:function` 把 `src/` 打包成 `supabase/functions/api/index.ts`（第三方套件改寫成 `npm:套件@版本`，不打包），此檔要提交。目前的部署方式：Supabase MCP 的 deploy_edge_function 只上傳 `supabase/loader/index.ts`（從 raw.githubusercontent.com 載入指定 commit 的打包檔），更新時改 commit 後重新部署；另可用 `.github/workflows/deploy-function.yml`（需 repo secret `SUPABASE_ACCESS_TOKEN`）。GitHub repo 必須維持公開。資料庫結構改動：改 `src/database/schema.ts` → `npm run db:generate` → 把新 migration 套用到 Supabase。
 
 ## Sean 版改動地圖
 

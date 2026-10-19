@@ -10,7 +10,7 @@
 - 專案形式：Supabase Edge Function（Hono＋Deno）＋ Supabase Postgres（drizzle）＋ pg_cron；React 後台（`admin/`）放 GitHub Pages。架構見 `AGENTS.md`「架構」
 - Supabase 專案：`ig-fb-auto-dm`，ID `gynpbquftdsoevxiwivp`，東京，免費方案
 - 測試：`npm test` 288 項全過（PGlite 記憶體 Postgres）；`npm run lint`、`npm run typecheck` 通過
-- Git：分支 `supabase`（由 `sean-funnel` 分出），remote `upstream` 指向原作者 repo；尚未推到 `SeanChen0427/CHAT`（等 Sean 在 Claude 連結 GitHub）
+- Git：已推到 `SeanChen0427/CHAT`（公開）的 `main`（單一初始 commit，因本機 clone 為淺層歷史）。本機分支 `chat-main` 對應 `main`；`supabase`／`sean-funnel` 為舊歷史
 
 ## 進行中
 
@@ -22,8 +22,9 @@
 
 - Sean 指定 GitHub repo `SeanChen0427/CHAT` 與 Supabase，且要網頁工具、不在電腦安裝。後端從 Cloudflare 搬到 Supabase（決策 D109–D113）。
 - Supabase 已建立並套用：資料表結構（16 張表，含 `event_jobs`）、所有表 RLS、Vault 自動產生的三個系統密鑰（只查過長度，值未經手）。
-- 尚未完成（等 GitHub）：部署 Edge Function、套用 `supabase/setup/01_密鑰與排程.sql` 的排程部分、推送程式碼、GitHub Pages。
-  - Edge Function 打包檔約 105 KB；透過 Supabase 連接器部署需要把整個檔案內容放進一次工具呼叫，量太大且無法保證逐字正確，因此改走 GitHub：推送後由 GitHub Actions（需 `SUPABASE_ACCESS_TOKEN`）或由連接器部署一個從 GitHub（jsDelivr）載入打包檔的小進入點。
+- 已部署（2026-10-19 23:50）：Edge Function `api` 版本 1（`supabase/loader/index.ts`，載入 commit 061c29f 的打包檔），健康檢查 `{"status":"ok"}`、`setup-status` 回 `needsSetup: true`；pg_cron 排程已建立，第一次 tick 回 200（證實 Vault 的 CRON_SECRET 兩端一致）。
+- 安全建議：16 張表「RLS 開啟但無 policy」為刻意設計（INFO）；`pg_net` 在 public schema（WARN）——改 schema 的指令被取消，影響小，未處理。
+- 尚未完成：GitHub Pages 需 Sean 在 repo Settings > Pages 選 GitHub Actions（GitHub API 經代理不允許由 Claude 開啟）。
 - 已驗證（實際執行）：
   - `npm test` 288 項全過；新增 `tests/unit/jobs.test.ts`（分派、依引擎指示延遲重試、重試上限、未預期錯誤不存錯誤內容、中斷工作回收、併發不重複處理、清理）與 `tests/integration/supabase.test.ts`（Bearer 登入、偽造權杖拒絕、CSRF 允許來源、CORS、內部端點密鑰、入列）。
   - 打包檔在 Deno 2.9.6＋本機 Postgres 16 實跑：健康檢查、Meta 驗證握手、Bearer 初始設定／登入、CORS 預檢、建立並啟用規則、簽章正確的 IG 留言 webhook 入列並在背景比對到規則、送出失敗（沙盒連不到 Meta）後排入 60 秒重試；錯誤簽章 401、內部端點無密鑰 401。
@@ -97,8 +98,6 @@ v1.0.0：
 
 ## 待處理
 
-- [ ] Sean：在 Claude 連結 GitHub 帳號（`add_repo` 回「link your GitHub account」）。
-- [ ] Claude：推送 `supabase` 分支到 `SeanChen0427/CHAT` 的 `main`；部署 Edge Function `api`（verify_jwt 關閉）；套用 `supabase/setup/01_密鑰與排程.sql`；跑 `get_advisors` 檢查。
 - [ ] Sean：GitHub repo Settings > Pages > Source 選 GitHub Actions；開後台建立管理者帳號。
 - [ ] Sean：建立 Meta App，在 Supabase 填入 4 個 Meta 權杖；Meta 後台貼上回呼網址與驗證權杖（步驟見 `docs/上線步驟.md`）。
 - [ ] 依 `docs/上線檢查.md` 用測試帳號實測全流程，修正與實際 API 不符之處。
