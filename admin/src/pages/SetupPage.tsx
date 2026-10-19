@@ -363,7 +363,7 @@ export function SetupPage() {
             </li>
             <li>按「建立應用程式」，名稱隨意（例如「我的自動私訊」），聯絡 Email 填你的。</li>
             <li>
-              「新增使用案例」選和 <strong>Instagram</strong> 有關、能管理訊息與留言的那一個（英文類似「Manage messaging &amp; content on Instagram」）。要接 Facebook 粉專的話，之後再加 Messenger 即可。
+              「新增使用案例」選 <strong>「管理 Instagram 的訊息和內容」</strong>（英文 Manage messaging &amp; content on Instagram）。要接 Facebook 粉專的話，也一起勾「透過 Messenger from Meta 與顧客互動」和「管理粉絲專頁的所有內容」。
             </li>
             <li>問到「商家資產組合」時可以先選不連結，之後再補。</li>
           </ol>
@@ -385,7 +385,7 @@ export function SetupPage() {
           <p>App 的「編號」與「密碼」讓你的工具能代表這個 App 跟 Meta 溝通。只會存在你自己的資料庫，不會顯示出來。</p>
           <div className="setup-where">
             <strong>Instagram App ID 與 Instagram App Secret 在哪裡：</strong>
-            在 App 後台左側進入 Instagram 的使用案例 &gt; 「API setup with Instagram business login」（Instagram 登入設定）頁面最上方。Secret 要按「顯示」才看得到。
+            左側「使用案例」&gt;「管理 Instagram 的訊息和內容」按「自訂」&gt;「API setup with Instagram business login」（使用 Instagram 登入設定 API）頁面最上方。Secret 要按「顯示」才看得到。
           </div>
           <div className="setup-where">
             <strong>Meta App ID 與 Meta App Secret 在哪裡：</strong>
@@ -502,10 +502,10 @@ export function SetupPage() {
           ) : null}
           <ol>
             <li>
-              在 Meta App 後台「新增使用案例」或「新增產品」，加入 <strong>Messenger</strong>（與 Facebook 粉專互動）以及 <strong>Facebook 登入（Facebook Login for Business）</strong>。
+              確認 Meta App 左側「使用案例」裡有 <strong>「透過 Messenger from Meta 與顧客互動」</strong>和<strong>「管理粉絲專頁的所有內容」</strong>。沒有的話按「新增使用案例」加進來。
             </li>
             <li>
-              在 Facebook 登入的「設定」，<strong>有效的 OAuth 重新導向 URI</strong> 貼上：
+              點 Meta 後台<strong>左側選單</strong>的<strong>「商家專用 Facebook 登入」&gt;「設定」</strong>，在「用戶端 OAuth 設定」的<strong>「有效的 OAuth 重新導向 URI」</strong>貼上下面的網址，<strong>按 Enter</strong>（網址會變成小標籤），再按最下面的「儲存變更」：
               <CopyBox label="Facebook 重新導向網址" value={status.redirectUris.facebook} />
             </li>
             <li>確認第 3 步已填 Meta App ID 與 Secret，再按下方按鈕，登入並勾選你的粉專。</li>
