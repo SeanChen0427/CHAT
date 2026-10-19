@@ -3,7 +3,9 @@
 // 完成的步驟自動打勾。Meta 後台的名稱常改版，說明以「找類似名稱」的方式描述，並附「找不到？」提示。
 import { useCallback, useEffect, useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router';
+import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
 import { AppHeader } from '../components/AppHeader';
+import { SetupChecklist } from '../components/Illustrations';
 import { apiGet, apiPost, apiPut, type ApiError } from '../api/client';
 
 interface ConnectStatus {
@@ -85,20 +87,49 @@ function Step({
   onToggle: () => void;
   children: React.ReactNode;
 }) {
+  const reduce = useReducedMotion();
   return (
-    <section className={`setup-step${done ? ' is-done' : ''}${open ? ' is-open' : ''}`}>
+    <motion.section layout="position" className={`setup-step${done ? ' is-done' : ''}${open ? ' is-open' : ''}`}>
       <button type="button" className="setup-step-head" onClick={onToggle} aria-expanded={open}>
         <span className="setup-step-num" aria-hidden="true">
-          {done ? '✓' : n}
+          <AnimatePresence mode="wait" initial={false}>
+            <motion.span
+              key={done ? 'done' : 'n'}
+              initial={reduce ? false : { scale: 0.4, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.4, opacity: 0 }}
+              transition={{ type: 'spring', stiffness: 600, damping: 26 }}
+            >
+              {done ? '✓' : n}
+            </motion.span>
+          </AnimatePresence>
         </span>
         <span className="setup-step-title">
           {title}
           {optional ? <span className="setup-step-tag">選用</span> : null}
         </span>
-        <span className="setup-step-state">{done ? '已完成' : open ? '收合' : '展開'}</span>
+        <span className="setup-step-state">
+          {done ? '已完成' : null}
+          <svg className="setup-step-chevron" width="14" height="14" viewBox="0 0 14 14" aria-hidden="true">
+            <path d="M3 5l4 4 4-4" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+        </span>
       </button>
-      {open ? <div className="setup-step-body">{children}</div> : null}
-    </section>
+      <AnimatePresence initial={false}>
+        {open ? (
+          <motion.div
+            key="body"
+            className="setup-step-body-wrap"
+            initial={reduce ? false : { height: 0, opacity: 0 }}
+            animate={{ height: 'auto', opacity: 1 }}
+            exit={reduce ? { opacity: 0 } : { height: 0, opacity: 0 }}
+            transition={{ height: { type: 'spring', stiffness: 380, damping: 38 }, opacity: { duration: 0.18 } }}
+          >
+            <div className="setup-step-body">{children}</div>
+          </motion.div>
+        ) : null}
+      </AnimatePresence>
+    </motion.section>
   );
 }
 
@@ -279,12 +310,22 @@ export function SetupPage() {
     <>
       <AppHeader />
       <div className="container container-tight">
-        <h1 className="page-title">設定精靈</h1>
-        <p className="page-subtitle">
-          照順序完成下面的步驟，就能讓 Instagram（與 Facebook 粉專）的留言、私訊自動回覆。第一次大約 20～30 分鐘，之後不用再做。
-        </p>
+        <div className="setup-hero">
+          <div>
+            <h1 className="page-title">設定精靈</h1>
+            <p className="page-subtitle">
+              照順序完成下面的步驟，就能讓 Instagram（與 Facebook 粉專）的留言、私訊自動回覆。第一次大約 20～30 分鐘，之後不用再做。
+            </p>
+          </div>
+          <SetupChecklist size={150} />
+        </div>
         <div className="setup-progress" aria-label={`已完成 ${finished} / ${required.length} 步`}>
-          <div className="setup-progress-bar" style={{ width: `${(finished / required.length) * 100}%` }} />
+          <motion.div
+            className="setup-progress-bar"
+            initial={false}
+            animate={{ width: `${(finished / required.length) * 100}%` }}
+            transition={{ type: 'spring', stiffness: 160, damping: 24 }}
+          />
         </div>
         <p className="setup-progress-text">
           已完成 {finished} / {required.length} 步（Facebook 為選用）

@@ -5,34 +5,34 @@
  */
 :root {
   /* ── Grayscale (slate)：9 階 ── */
-  --slate-50: #f8fafc;
-  --slate-100: #f1f5f9;
-  --slate-200: #e2e8f0;
-  --slate-300: #cbd5e1;
-  --slate-400: #94a3b8;
-  --slate-500: #64748b;
-  --slate-600: #475569;
-  --slate-700: #334155;
-  --slate-800: #1e293b;
-  --slate-900: #0f172a;
+  --slate-50: #fcfaf6;
+  --slate-100: #f6f2ea;
+  --slate-200: #e9e3d8;
+  --slate-300: #d6cebf;
+  --slate-400: #a39a8a;
+  --slate-500: #6f685c;
+  --slate-600: #514b41;
+  --slate-700: #3a352d;
+  --slate-800: #26231e;
+  --slate-900: #1c1a17;
 
   /* ── Primary (indigo/violet)：藍紫主色 ── */
-  --primary-50: #eef2ff;
-  --primary-100: #e0e7ff;
-  --primary-200: #c7d2fe;
-  --primary-500: #6366f1;
-  --primary-600: #4f46e5;
-  --primary-700: #4338ca;
+  --primary-50: #f2efe8;
+  --primary-100: #e7e2d7;
+  --primary-200: #d3ccbd;
+  --primary-500: #3a352d;
+  --primary-600: #1c1a17;
+  --primary-700: #000000;
 
   /* ── 語意色（bg 淺底 / fg 文字）── */
-  --success-fg: #15803d;
-  --success-bg: #dcfce7;
-  --danger-fg: #b91c1c;
-  --danger-bg: #fee2e2;
-  --warning-fg: #b45309;
-  --warning-bg: #fef3c7;
-  --neutral-fg: #475569;
-  --neutral-bg: #f1f5f9;
+  --success-fg: #2f6b45;
+  --success-bg: #dcebd9;
+  --danger-fg: #a8322a;
+  --danger-bg: #f6dcd6;
+  --warning-fg: #8a5a12;
+  --warning-bg: #f7e7b4;
+  --neutral-fg: #514b41;
+  --neutral-bg: #efeae0;
 
   /* ── 顏色角色規範（新元件一律照此選色，不得混用）──
      動作（可點擊、會改變系統）→ primary 藍紫：按鈕、連結、圖表主線、focus ring
@@ -42,7 +42,7 @@
      同一概念只能有一種顏色表達（例：「自動化啟用中」一律綠）。 */
 
   /* ── 語意 token（畫面用這層，不直接用色階）── */
-  --color-bg: var(--slate-100);
+  --color-bg: #fbf9f5;
   --color-surface: #ffffff;
   --color-border: var(--slate-200);
   --color-text: var(--slate-900);
@@ -53,8 +53,10 @@
   --color-primary-soft: var(--primary-50);
 
   /* ── 字體 ── */
-  --font-sans: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang TC',
-    'Microsoft JhengHei', 'Noto Sans TC', sans-serif;
+  --font-sans: -apple-system, BlinkMacSystemFont, 'PingFang TC', 'Noto Sans TC', 'Microsoft JhengHei',
+    system-ui, sans-serif;
+  /* Sean 版改版：標題用襯線（宋體／明體），像手寫筆記本的封面，與內文的黑體形成對比。 */
+  --font-serif: 'Noto Serif TC', 'Songti TC', 'PMingLiU', serif;
 
   /* ── 字級 scale ── */
   --text-xs: 12px;
@@ -84,24 +86,38 @@
   --space-12: 48px;
 
   /* ── 圓角 ── */
-  --radius-sm: 6px;
-  --radius-md: 8px;
-  --radius-lg: 12px;
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 18px;
   --radius-full: 999px;
 
   /* ── 陰影（深度只用陰影，不疊邊框）── */
-  --shadow-sm: 0 1px 2px 0 rgb(15 23 42 / 0.04), 0 1px 3px 0 rgb(15 23 42 / 0.06);
-  --shadow-md: 0 4px 6px -1px rgb(15 23 42 / 0.07), 0 2px 4px -2px rgb(15 23 42 / 0.05);
-  --shadow-lg: 0 10px 20px -5px rgb(15 23 42 / 0.12), 0 4px 8px -4px rgb(15 23 42 / 0.08);
+  --shadow-sm: 0 0 0 1px rgb(60 48 30 / 0.07), 0 1px 2px rgb(60 48 30 / 0.04);
+  --shadow-md: 0 0 0 1px rgb(60 48 30 / 0.07), 0 6px 16px -6px rgb(60 48 30 / 0.12);
+  --shadow-lg: 0 0 0 1px rgb(60 48 30 / 0.06), 0 24px 48px -16px rgb(40 30 15 / 0.28);
 
   /* ── 基底色與疊加層（縮圖上的標籤/開關用；不得另寫 rgba）── */
   --color-white: #ffffff;
   --danger-100: #fecaca;
-  --overlay-strong: rgb(15 23 42 / 0.62);
-  --overlay-soft: rgb(15 23 42 / 0.4);
+  --overlay-strong: rgb(28 26 23 / 0.62);
+  --overlay-soft: rgb(28 26 23 / 0.36);
 
   /* ── 極小字級（圖表刻度等 SVG 內文字專用）── */
   --text-2xs: 11px;
+
+  /* ── Sean 版改版：粉彩色票（統計卡、導覽卡、精靈步驟）── */
+  --pastel-berry: #f0c9dc;
+  --pastel-sky: #bfd2f1;
+  --pastel-peach: #f3bba5;
+  --pastel-butter: #f4de92;
+  --pastel-sage: #cfe0c6;
+  --ink: #1c1a17;
+  --paper: #fbf9f5;
+  --paper-deep: #f4f0e8;
+
+  /* ── 動態曲線：所有回應操作的動畫共用，快進慢出 ── */
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-spring: cubic-bezier(0.34, 1.4, 0.64, 1);
 
   /* ── z-index 尺度（sticky 頁首 < 遮罩 < 下拉 < tooltip）── */
   --z-header: 10;

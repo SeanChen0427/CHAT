@@ -4,6 +4,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router';
 import { apiGet, apiPost, type ApiError, setToken } from '../api/client';
+import { BearWave } from '../components/Illustrations';
 
 const MIN_PASSWORD_LENGTH = 12;
 
@@ -65,10 +66,10 @@ export function LoginPage() {
   return (
     <div className="login-viewport">
       <div className="login-card">
-        <div className="login-brand">
-          <span className="dot dot-lg" />
-          IG／FB 自動私訊
+        <div className="login-art">
+          <BearWave size={150} />
         </div>
+        <div className="login-brand">IG／FB 自動私訊</div>
         <h1 className="login-title">{isSetup ? '建立管理者帳號' : '登入管理後台'}</h1>
         <p className="login-hint">
           {isSetup

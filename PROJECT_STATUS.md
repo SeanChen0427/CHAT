@@ -4,7 +4,7 @@
 
 ## 目前狀態
 
-- 版本：Sean 版 v2.1.0（以上游 `pjwang2022/instagram-comment-dm-bot` commit `4a05ab7` 為基礎）
+- 版本：Sean 版 v2.2.0（以上游 `pjwang2022/instagram-comment-dm-bot` commit `4a05ab7` 為基礎）
 - 最後更新：2026-10-19
 - 最後執行者：Claude Code
 - 專案形式：Supabase Edge Function（Hono＋Deno）＋ Supabase Postgres（drizzle）＋ pg_cron；React 後台（`admin/`）放 GitHub Pages。架構見 `AGENTS.md`「架構」
@@ -18,7 +18,14 @@
 
 - 無
 
-## 本次完成（v2.1.0，2026-10-20）
+## 本次完成（v2.2.0，2026-10-20）
+
+- Sean 要求介面改版、動畫要絲滑，參考 Mobbin 上 Hilos 的 guided tour（截圖）。新增 `motion@13.4.6`（MIT、免費）負責彈簧動畫。
+- 改動檔案：`admin/src/styles/tokens.css`（色票、字體、圓角、陰影）、`app.css` 末段「Sean 版改版」、`components/AppHeader.tsx`（改為側欄）、`components/GuidedTour.tsx`、`components/Illustrations.tsx`（新）、`pages/HomePage.tsx`（問候＋統計卡）、`pages/SetupPage.tsx`（動畫）、`pages/LoginPage.tsx`、`index.html`（Google Fonts）。
+- 已驗證：Playwright 截圖桌面 1440px 與手機 390px（登入、導覽第 1 頁與切換中、首頁、新增選單、設定精靈、手機抽屜），無頁面錯誤、無水平溢出；lint、typecheck 通過。
+- 尚未改版細節：自動化編輯器、名單頁只套用新色票與按鈕，版面沿用舊版。
+
+## 先前完成（v2.1.0，2026-10-20）
 
 - Sean 要求：綁定要在自己的工具內完成、第一次使用就看得懂；學員各自一套（D114–D116）。
 - 新增設定精靈（`/setup`）、一鍵連結 Instagram／Facebook（OAuth）、事件通知自動設定、學員 Fork 安裝流程與手冊。

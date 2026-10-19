@@ -2,6 +2,8 @@
 // 取代原本的儀表板與貼文兩頁。
 import { useCallback, useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router';
+import { motion } from 'motion/react';
+import { BearWave } from '../components/Illustrations';
 import { AppHeader } from '../components/AppHeader';
 import { apiGet, apiPost, type ApiError } from '../api/client';
 
@@ -307,6 +309,18 @@ function StoryCircle({ story, active, onClick }: { story: Media; active: boolean
   );
 }
 
+// Sean 版改版：台北時間的日期與問候語。
+const TAIPEI = 'Asia/Taipei';
+function todayText(): string {
+  return new Intl.DateTimeFormat('zh-TW', { timeZone: TAIPEI, month: 'long', day: 'numeric', weekday: 'long' }).format(new Date());
+}
+function greeting(): string {
+  const h = Number(new Intl.DateTimeFormat('en-US', { timeZone: TAIPEI, hour: 'numeric', hourCycle: 'h23' }).format(new Date()));
+  if (h >= 5 && h < 11) return '早安';
+  if (h >= 11 && h < 17) return '午安';
+  return '晚安';
+}
+
 // 精靈手動離開後，這個分頁不再自動導回（關掉重開才會再提醒）。
 function sessionStorageGet(key: string): string | null {
   try {
@@ -500,65 +514,68 @@ export function HomePage() {
           </div>
         ) : null}
 
-        {/* IG 個人頁式頁首 */}
+        {/* Sean 版改版：問候＋粉彩統計卡（參考 Hilos 首頁） */}
         {status ? (
-          <div className="profile-header">
-            <div className="profile-avatar">
-              {status.account?.profilePictureUrl ? (
-                <img src={status.account.profilePictureUrl} alt="" />
-              ) : (
-                <span className="profile-avatar-fallback">IG</span>
-              )}
-            </div>
-            <div className="profile-main">
-              <div className="profile-name-row">
-                <span className="profile-username">
-                  {status.account?.username ? `@${status.account.username}` : '（尚未同步帳號）'}
-                </span>
-                <span className={`badge ${status.emergencyStop ? 'badge-danger' : 'badge-success'}`}>
-                  {status.emergencyStop ? '緊急停止中' : '運作中'}
-                </span>
-              </div>
-              {status.facebookPage ? (
-                <div className="profile-fb">
-                  <span className="platform-tag is-fb is-inline">FB</span>
-                  {status.facebookPage.name ?? 'Facebook 粉專'}
-                  {status.facebookPage.webhookSubscribed ? null : (
-                    <span className="badge badge-warning">尚未開啟事件通知，請按「↻ 同步」</span>
-                  )}
+          <>
+            <section className="home-hero">
+              <div className="home-hero-text">
+                <p className="hero-date">{todayText()}</p>
+                <h1 className="hero-greet">
+                  {greeting()}
+                  {status.account?.username ? `，@${status.account.username}` : ''}
+                </h1>
+                <div className="hero-account">
+                  <span className={`badge ${status.emergencyStop ? 'badge-danger' : 'badge-success'}`}>
+                    {status.emergencyStop ? '緊急停止中' : '自動回覆運作中'}
+                  </span>
+                  {status.account?.username ? (
+                    <span className="hero-chip">
+                      <span className="platform-tag is-inline">IG</span>@{status.account.username}
+                    </span>
+                  ) : null}
+                  {status.facebookPage ? (
+                    <span className="hero-chip">
+                      <span className="platform-tag is-fb is-inline">FB</span>
+                      {status.facebookPage.name ?? 'Facebook 粉專'}
+                      {status.facebookPage.webhookSubscribed ? null : <em className="hero-chip-warn">尚未開啟事件通知，請按同步</em>}
+                    </span>
+                  ) : null}
                 </div>
-              ) : null}
-              <div className="profile-stats">
-                <span>
-                  符合 <strong>{status.total.matched}</strong>
-                  <em className="stat-sub">今日 {status.today.matched}</em>
-                </span>
-                <span>
-                  公開回覆 <strong>{status.total.publicReplySuccess}</strong>
-                  <em className="stat-sub">今日 {status.today.publicReplySuccess}</em>
-                </span>
-                <span>
-                  私訊 <strong>{status.total.dmSuccess}</strong>
-                  <em className="stat-sub">今日 {status.today.dmSuccess}</em>
-                </span>
-                <span className={status.total.failures > 0 ? 'is-danger' : ''}>
-                  失敗 <strong>{status.total.failures}</strong>
-                  <em className="stat-sub">今日 {status.today.failures}</em>
-                </span>
+                <div className="hero-actions">
+                  <button className="btn btn-outline btn-sm" onClick={sync} disabled={syncing}>
+                    {syncing ? '同步中…' : '同步貼文'}
+                  </button>
+                  <button className={`btn btn-sm ${status.emergencyStop ? 'btn-primary' : 'btn-danger-soft'}`} onClick={toggleEmergency}>
+                    {status.emergencyStop ? '恢復自動回覆' : '緊急停止'}
+                  </button>
+                </div>
               </div>
-            </div>
-            <div className="profile-actions">
-              <button className="btn btn-ghost btn-sm" onClick={sync} disabled={syncing}>
-                {syncing ? '同步中…' : '↻ 同步'}
-              </button>
-              <button
-                className={`btn btn-sm ${status.emergencyStop ? 'btn-primary' : 'btn-danger'}`}
-                onClick={toggleEmergency}
-              >
-                {status.emergencyStop ? '恢復系統' : '緊急停止'}
-              </button>
-            </div>
-          </div>
+              <BearWave className="hero-art" size={190} />
+            </section>
+            <motion.div className="stat-grid" initial="hidden" animate="show" variants={{ show: { transition: { staggerChildren: 0.06 } } }}>
+              {(
+                [
+                  ['berry', '符合關鍵字', status.total.matched, status.today.matched, '有人留言或私訊命中你的規則'],
+                  ['sky', '公開回覆', status.total.publicReplySuccess, status.today.publicReplySuccess, '在留言底下回覆的次數'],
+                  ['peach', '私訊送出', status.total.dmSuccess, status.today.dmSuccess, '成功送到對方收件匣'],
+                  ['butter', '失敗', status.total.failures, status.today.failures, status.total.failures > 0 ? '點下方執行紀錄看原因' : '目前一切順利'],
+                ] as const
+              ).map(([tint, label, total, today, hint]) => (
+                <motion.div
+                  key={label}
+                  className={`stat-card is-${tint}`}
+                  variants={{ hidden: { opacity: 0, y: 10 }, show: { opacity: 1, y: 0, transition: { type: 'spring', stiffness: 380, damping: 30 } } }}
+                >
+                  <div className="stat-card-head">
+                    <span>{label}</span>
+                    <span className="stat-card-today">今日 {today}</span>
+                  </div>
+                  <div className="stat-card-num">{total}</div>
+                  <div className="stat-card-hint">{hint}</div>
+                </motion.div>
+              ))}
+            </motion.div>
+          </>
         ) : null}
 
         {status?.series ? <DmTrendChart series={status.series} /> : null}
