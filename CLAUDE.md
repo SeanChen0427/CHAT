@@ -8,7 +8,7 @@
 
 復刻 ManyChat 的 Instagram 核心功能給 Sean（熊恩）自己使用，取代每月訂閱費。以 MIT 授權的開源專案 [pjwang2022/instagram-comment-dm-bot](https://github.com/pjwang2022/instagram-comment-dm-bot) 為基礎，補上原版沒有的功能。
 
-Sean 的核心需求（2026-10-19 確認，以這三項為主）：
+Sean 的核心需求（2026-10-19 確認，以這三項為主；2026-10-20 補充：要讓學員各自複製一套，第一次使用就看得懂怎麼操作）：
 
 1. **Instagram 與 Facebook** 的貼文／影片留言自動私訊
 2. 限時動態回覆自動私訊（Instagram；Facebook 粉專沒有限動回覆事件，做不到）
@@ -31,13 +31,13 @@ Sean 要的是網頁工具，不在自己電腦安裝任何東西。上游原本
 | 佇列 | `event_jobs` 表 | 取代 Cloudflare Queues：webhook 入列後在背景立刻跑一次（`EdgeRuntime.waitUntil`），pg_cron 每分鐘呼叫 `/api/internal/tick` 補跑與重試（最多重試 3 次） |
 | 排程 | pg_cron＋pg_net | `supabase/setup/01_密鑰與排程.sql`：tick 每分鐘、同步台北 04:00 與 08:00、清理 03:00 |
 | 系統密鑰 | Supabase Vault | `ADMIN_SESSION_SECRET`、`CRON_SECRET`、`WEBHOOK_VERIFY_TOKEN` 在資料庫內隨機產生，Edge Function 啟動時讀取；Edge Function secrets 有同名值時以 secrets 為準 |
-| Meta 權杖 | Edge Function secrets | `INSTAGRAM_APP_SECRET`、`INSTAGRAM_ACCOUNT_ACCESS_TOKEN`、`META_APP_SECRET`、`FACEBOOK_PAGE_ACCESS_TOKEN`，由 Sean 在 Supabase 後台輸入，不經過 AI 對話 |
+| Meta App 與權杖 | `app_config` 表（設定精靈）＋ `instagram_accounts.access_token` | 2.1.0 起由後台「設定精靈」填 App ID／Secret、按「連結」以 OAuth 取得權杖；Edge Function secrets 仍可用但優先權較低（`src/config/app-config.ts`） |
 | 後台前端 | GitHub Pages | repo `SeanChen0427/CHAT`，網址 `https://seanchen0427.github.io/CHAT/`；`.github/workflows/pages.yml` 建置後推到 `gh-pages` 分支，Pages 設定為 Deploy from a branch（gh-pages）|
 | 隱私權政策 | GitHub Pages `privacy.html` | Supabase Edge Function 不能對外提供 HTML 頁面，因此由 `scripts/build-privacy.ts` 產生靜態頁 |
 
 跨網域後台的處理：後台（github.io）與 API（supabase.co）不同網域，瀏覽器不帶第三方 Cookie，因此登入／初始設定回傳 `token`，前端存在 localStorage，每次請求帶 `Authorization: Bearer`（`requireAdminAuth` 先讀 Bearer，沒有才讀 Cookie）。`ADMIN_ORIGINS`（預設 `https://seanchen0427.github.io`）同時用於 CORS 與 CSRF 允許來源。
 
-部署方式：`npm run build:function` 把 `src/` 打包成 `supabase/functions/api/index.ts`（第三方套件改寫成 `npm:套件@版本`，不打包），此檔要提交。目前的部署方式：Supabase MCP 的 deploy_edge_function 只上傳 `supabase/loader/index.ts`（從 raw.githubusercontent.com 載入指定 commit 的打包檔），更新時改 commit 後重新部署；另可用 `.github/workflows/deploy-function.yml`（需 repo secret `SUPABASE_ACCESS_TOKEN`）。GitHub repo 必須維持公開。資料庫結構改動：改 `src/database/schema.ts` → `npm run db:generate` → 把新 migration 套用到 Supabase。
+部署方式：`npm run build:function` 把 `src/` 打包成 `supabase/functions/api/index.ts`（第三方套件改寫成 `npm:套件@版本`，不打包），此檔要提交。目前的部署方式：Supabase MCP 的 deploy_edge_function 只上傳 `supabase/loader/index.ts`（從 raw.githubusercontent.com 載入指定 commit 的打包檔），更新時改 commit 後重新部署；學員的 Fork 則由 `.github/workflows/install.yml`（需 Secrets `SUPABASE_ACCESS_TOKEN`、`SUPABASE_PROJECT_REF`）安裝與更新。GitHub repo 必須維持公開。資料庫結構改動：改 `src/database/schema.ts` → `npm run db:generate` → 把新 migration 套用到 Supabase。
 
 ## Sean 版改動地圖
 
@@ -75,6 +75,10 @@ Sean 要的是網頁工具，不在自己電腦安裝任何東西。上游原本
 | `admin/src/api/client.ts`、`main.tsx`、`vite.config.ts` | `VITE_API_BASE`、權杖存取、CSV 改用 fetch 下載、base `/CHAT/` |
 | `scripts/build-function.mjs`、`supabase/config.toml`、`supabase/setup/` | 打包 Edge Function、函式設定、Vault 與排程 SQL |
 | `tests/helpers/pg.ts` | 測試用 PGlite（記憶體 Postgres），載入 `drizzle/pg` |
+| `src/config/app-config.ts`、`drizzle/pg/0002_app_config.sql` | 精靈設定（app_config）讀寫，合併進 env |
+| `src/oauth/meta-oauth.ts`、`src/admin/connect.ts` | Instagram／Facebook OAuth、事件通知自動設定、精靈 API（`/api/admin/connect/*`）與回呼（`/api/oauth/*`） |
+| `admin/src/pages/SetupPage.tsx` | 設定精靈頁（`/setup`）；首頁未連結時自動導入 |
+| `scripts/supabase-install.mjs`、`.github/workflows/install.yml`、`docs/學員安裝手冊.md` | 學員 Fork 後一鍵安裝／更新到自己的 Supabase |
 
 ### 流程與慣例
 

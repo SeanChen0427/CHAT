@@ -4,12 +4,12 @@
 
 ## 目前狀態
 
-- 版本：Sean 版 v2.0.0（以上游 `pjwang2022/instagram-comment-dm-bot` commit `4a05ab7` 為基礎）
+- 版本：Sean 版 v2.1.0（以上游 `pjwang2022/instagram-comment-dm-bot` commit `4a05ab7` 為基礎）
 - 最後更新：2026-10-19
 - 最後執行者：Claude Code
 - 專案形式：Supabase Edge Function（Hono＋Deno）＋ Supabase Postgres（drizzle）＋ pg_cron；React 後台（`admin/`）放 GitHub Pages。架構見 `AGENTS.md`「架構」
 - Supabase 專案：`ig-fb-auto-dm`，ID `gynpbquftdsoevxiwivp`，東京，免費方案
-- 測試：`npm test` 288 項全過（PGlite 記憶體 Postgres）；`npm run lint`、`npm run typecheck` 通過
+- 測試：`npm test` 301 項全過（PGlite 記憶體 Postgres）；`npm run lint`、`npm run typecheck` 通過
 - Git：已推到 `SeanChen0427/CHAT`（公開）的 `main`（單一初始 commit，因本機 clone 為淺層歷史）。本機分支 `chat-main` 對應 `main`；`supabase`／`sean-funnel` 為舊歷史
 
 ## 進行中
@@ -18,7 +18,16 @@
 
 - 無
 
-## 本次完成（v2.0.0，2026-10-19）
+## 本次完成（v2.1.0，2026-10-20）
+
+- Sean 要求：綁定要在自己的工具內完成、第一次使用就看得懂；學員各自一套（D114–D116）。
+- 新增設定精靈（`/setup`）、一鍵連結 Instagram／Facebook（OAuth）、事件通知自動設定、學員 Fork 安裝流程與手冊。
+- Supabase 已套用 `0002_app_config`，並建立 `_igfb_migrations`（標記 0000–0002 已套用，讓安裝腳本可在此專案重複執行）。
+- 後端已部署第 2 版（loader 指向 commit d38fd85）；正式環境確認 `/api/admin/connect/status` 未登入回 401、OAuth 回呼無 state 回 400、排程 tick 持續 200。
+- 已驗證：`tests/integration/connect.test.ts` 13 項（App 資料存取與格式檢查、狀態不洩漏密鑰、資料庫中的 App Secret 可驗證事件通知簽章、IG 授權網址、IG 回呼完整流程與錯誤／取消、偽造 state 拒絕、state 不能當登入權杖、FB 單一粉專、多粉專選擇且不洩漏粉專權杖、無粉專說明）；Playwright 在本機（Deno＋Postgres 16＋模擬 Pages）走過：首次登入自動進精靈、勾選自動前進、App ID 格式錯誤的中文提示、儲存後進度 3/6、按連結 Instagram 產生正確授權網址、從 Meta 帶錯誤回來顯示中文說明並清掉網址參數、手機 390px 無溢出、首頁未連結提醒。
+- 未驗證：真實 Meta OAuth（需要 Sean 的 Meta App）、`/{app-id}/subscriptions` 是否接受 Instagram 物件、學員安裝流程在真實 Fork 與 Supabase Management API 上的執行。
+
+## 先前完成（v2.0.0，2026-10-19）
 
 - Sean 指定 GitHub repo `SeanChen0427/CHAT` 與 Supabase，且要網頁工具、不在電腦安裝。後端從 Cloudflare 搬到 Supabase（決策 D109–D113）。
 - Supabase 已建立並套用：資料表結構（16 張表，含 `event_jobs`）、所有表 RLS、Vault 自動產生的三個系統密鑰（只查過長度，值未經手）。
@@ -98,8 +107,8 @@ v1.0.0：
 
 ## 待處理
 
-- [ ] Sean：GitHub repo Settings > Pages > Source 選 GitHub Actions；開後台建立管理者帳號。
-- [ ] Sean：建立 Meta App，在 Supabase 填入 4 個 Meta 權杖；Meta 後台貼上回呼網址與驗證權杖（步驟見 `docs/上線步驟.md`）。
+- [ ] Sean：在後台走一次設定精靈，連結 Instagram（與 Facebook 粉專）；回報卡住的地方，修正精靈說明。
+- [ ] 找一位學員照 `docs/學員安裝手冊.md` 實際安裝一次，修正手冊。
 - [ ] 依 `docs/上線檢查.md` 用測試帳號實測全流程，修正與實際 API 不符之處。
 - [ ] 切 Live 後用非測試人員帳號驗證；不行再送 App Review。
 
