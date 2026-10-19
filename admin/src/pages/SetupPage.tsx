@@ -519,7 +519,7 @@ export function SetupPage() {
           <Help>
             <ul>
               <li>
-                找不到「有效的 OAuth 重新導向 URI」：在 Meta 後台最上方的搜尋框輸入 <strong>OAuth</strong>，選「Facebook 登入」的設定。如果搜不到，代表還沒加入 Facebook 登入，先到「使用案例」新增「使用 Facebook 登入驗證並要求用戶資料」。
+                找不到「有效的 OAuth 重新導向 URI」：左側點<strong>「使用案例」</strong>，找到「使用 Facebook 登入驗證並要求用戶資料」（英文 Authenticate and request data from users with Facebook Login）那一格，按<strong>「自訂」</strong>，再點上方的<strong>「設定」</strong>分頁，往下就是這個欄位。貼上網址後按 Enter，再按「儲存變更」。沒有這一格的話，先按「新增使用案例」把它加進來。
               </li>
               <li>
                 Meta 後台的「Webhooks」頁面（回呼網址、驗證權杖）<strong>不用自己填</strong>，連結成功後系統會自動設定。只有當這個精靈出現「事件通知要手動設定一次」時才需要。
