@@ -24,7 +24,6 @@ export const FACEBOOK_SCOPES = [
   'pages_manage_metadata',
   'pages_read_engagement',
   'pages_manage_engagement',
-  'pages_read_user_content',
 ];
 export const INSTAGRAM_WEBHOOK_FIELDS = 'comments,messages,messaging_postbacks,messaging_referral';
 export const PAGE_WEBHOOK_FIELDS = 'feed,messages,messaging_postbacks,messaging_referrals';

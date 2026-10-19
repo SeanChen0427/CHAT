@@ -1127,7 +1127,7 @@ async function hn(t, e) {
 		: { ok: !1, items: [], error: `抓取 Facebook 貼文失敗（${Tt(n)}）` };
 }
 var Ra = ["instagram_business_basic", "instagram_business_manage_messages", "instagram_business_manage_comments"],
-	Ta = ["pages_show_list", "pages_messaging", "pages_manage_metadata", "pages_read_engagement", "pages_manage_engagement", "pages_read_user_content"],
+	Ta = ["pages_show_list", "pages_messaging", "pages_manage_metadata", "pages_read_engagement", "pages_manage_engagement"],
 	An = "comments,messages,messaging_postbacks,messaging_referral",
 	xa = "feed,messages,messaging_postbacks,messaging_referrals",
 	Ca = "v24.0",
