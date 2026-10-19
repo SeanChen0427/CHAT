@@ -1,0 +1,29 @@
+{
+  "version": "5",
+  "specifiers": {
+    "npm:chinese-simple2traditional@2.3.2": "2.3.2",
+    "npm:drizzle-orm@0.45.2": "0.45.2_postgres@3.4.9",
+    "npm:hono@4.12.32": "4.12.32",
+    "npm:postgres@3.4.9": "3.4.9"
+  },
+  "npm": {
+    "chinese-simple2traditional@2.3.2": {
+      "integrity": "sha512-zgvXTpDelAOtM6GIqLLWTe3Ot2a3WrV1ZJvnXhz+Nz1flnMRaBi602UOg8u/elsHbIVIOgT2jRpa2TbnHaXdYg=="
+    },
+    "drizzle-orm@0.45.2_postgres@3.4.9": {
+      "integrity": "sha512-kY0BSaTNYWnoDMVoyY8uxmyHjpJW1geOmBMdSSicKo9CIIWkSxMIj2rkeSR51b8KAPB7m+qysjuHme5nKP+E5Q==",
+      "dependencies": [
+        "postgres"
+      ],
+      "optionalPeers": [
+        "postgres"
+      ]
+    },
+    "hono@4.12.32": {
+      "integrity": "sha512-XcuyW9qE2kJn07PkecMOBd5Vq/hMy7mmGw+idz1yblbg9N17ijJODrvPkn7/dwL3Kulj8LcRJ69DLOWf91dRUg=="
+    },
+    "postgres@3.4.9": {
+      "integrity": "sha512-GD3qdB0x1z9xgFI6cdRD6xu2Sp2WCOEoe3mtnyB5Ee0XrrL5Pe+e4CCnJrRMnL1zYtRDZmQQVbvOttLnKDLnaw=="
+    }
+  }
+}

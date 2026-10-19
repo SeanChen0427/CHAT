@@ -1,0 +1,422 @@
+// 自動化規則 CRUD Admin API（spec.md 第 16.8–16.11 節）。
+import { and, eq } from 'drizzle-orm';
+import { Hono } from 'hono';
+import type { AppBindings } from '../app';
+import { normalizeCommentText } from '../automation/normalizer';
+import { createDb } from '../database/client';
+import {
+  automationKeywords,
+  automationRuns,
+  automations,
+  contactAutomations,
+  instagramAccounts,
+  instagramMedia,
+  publicReplyVariants,
+  systemSettings,
+} from '../database/schema';
+import { csrfMiddleware } from '../security/csrf';
+import { adminApiRateLimitMiddleware } from '../security/rate-limit';
+import { VALID_MATCH_TYPES, validateActivation } from '../shared/validation';
+import { requireAdminAuth } from './auth';
+
+// Sean 版新增 dm_keyword（私訊關鍵字）與 ref（Click-to-DM 廣告／ig.me 連結）。
+const VALID_APPLY_SCOPES = ['media', 'next_post', 'account_default', 'dm_keyword', 'ref'] as const;
+type ApplyScope = (typeof VALID_APPLY_SCOPES)[number];
+
+interface CreateBody {
+  instagramMediaId?: string;
+  applyScope?: string;
+  name?: string;
+  matchType?: string;
+  keywords?: unknown;
+  publicReplyEnabled?: boolean;
+  publicReplyVariants?: unknown;
+  privateReplyEnabled?: boolean;
+  openingDm?: string;
+  buttonText?: string;
+  buttonUrl?: string;
+  dailyLimit?: number;
+  // ---- Sean 版新增 ----
+  followGateEnabled?: boolean;
+  notFollowingText?: string | null;
+  recheckButtonText?: string | null;
+  emailCaptureEnabled?: boolean;
+  emailPromptText?: string | null;
+  claimButtonText?: string | null;
+  deliveryText?: string | null;
+  tag?: string | null;
+  oncePerContact?: boolean;
+  // Sean 版：不綁貼文的規則適用平台；null／省略＝兩個平台都適用。
+  platform?: string | null;
+}
+
+function normalizePlatform(v: unknown): 'instagram' | 'facebook' | null {
+  return v === 'instagram' || v === 'facebook' ? v : null;
+}
+
+// Sean 版新增欄位：文字欄位空字串存成 NULL（引擎會套用預設文字），布林存 0/1。
+const FUNNEL_TEXT_FIELDS = [
+  'notFollowingText',
+  'recheckButtonText',
+  'emailPromptText',
+  'claimButtonText',
+  'deliveryText',
+  'tag',
+] as const;
+const FUNNEL_BOOL_FIELDS = ['followGateEnabled', 'emailCaptureEnabled', 'oncePerContact'] as const;
+
+function funnelPatch(body: Partial<CreateBody>): Record<string, unknown> {
+  const out: Record<string, unknown> = {};
+  for (const k of FUNNEL_TEXT_FIELDS) {
+    const v = body[k];
+    if (v === undefined) continue;
+    out[k] = typeof v === 'string' && v.trim() ? v.trim().slice(0, k === 'tag' ? 40 : 640) : null;
+  }
+  for (const k of FUNNEL_BOOL_FIELDS) {
+    if (typeof body[k] === 'boolean') out[k] = body[k] ? 1 : 0;
+  }
+  return out;
+}
+
+function asStringArray(value: unknown): string[] {
+  if (!Array.isArray(value)) return [];
+  return value.filter((v): v is string => typeof v === 'string' && v.trim().length > 0);
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+async function replaceKeywords(db: any, automationId: string, keywords: string[]): Promise<void> {
+  await db.delete(automationKeywords).where(eq(automationKeywords.automationId, automationId));
+  const seen = new Set<string>();
+  for (const kw of keywords) {
+    const normalized = normalizeCommentText(kw);
+    if (!normalized || seen.has(normalized)) continue;
+    seen.add(normalized);
+    await db.insert(automationKeywords).values({
+      id: crypto.randomUUID(),
+      automationId,
+      keyword: kw,
+      normalizedKeyword: normalized,
+    });
+  }
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+async function replaceVariants(db: any, automationId: string, messages: string[]): Promise<void> {
+  await db.delete(publicReplyVariants).where(eq(publicReplyVariants.automationId, automationId));
+  for (const message of messages.slice(0, 5)) {
+    await db.insert(publicReplyVariants).values({
+      id: crypto.randomUUID(),
+      automationId,
+      message,
+      enabled: 1,
+    });
+  }
+}
+
+export function createAutomationRoutes() {
+  const app = new Hono<{ Bindings: AppBindings; Variables: { adminUserId: string } }>();
+
+  // 所有修改型 Admin API：CSRF → 驗證登入 → 一般限流。
+  app.use('*', csrfMiddleware(), requireAdminAuth(), adminApiRateLimitMiddleware());
+
+  // POST /api/admin/automations
+  app.post('/', async (c) => {
+    let body: CreateBody;
+    try {
+      body = await c.req.json();
+    } catch {
+      return c.json({ error: '請求格式錯誤' }, 400);
+    }
+
+    const applyScope: ApplyScope = VALID_APPLY_SCOPES.includes(body.applyScope as ApplyScope)
+      ? (body.applyScope as ApplyScope)
+      : 'media';
+    if (!body.name || (applyScope === 'media' && !body.instagramMediaId)) {
+      return c.json({ error: '缺少必要欄位' }, 400);
+    }
+    const matchType = body.matchType ?? 'contains_any';
+    if (!VALID_MATCH_TYPES.includes(matchType as never)) {
+      return c.json({ error: '比對模式無效' }, 400);
+    }
+
+    const db = createDb(c.env.DB);
+    if (applyScope === 'media') {
+      const media = await db
+        .select()
+        .from(instagramMedia)
+        .where(eq(instagramMedia.id, body.instagramMediaId!))
+        .limit(1);
+      if (media.length === 0) return c.json({ error: '貼文不存在' }, 404);
+    }
+    const platform = normalizePlatform(body.platform);
+    if (applyScope === 'account_default') {
+      // 全帳號預設每個平台只允許一組（Sean 版：「兩個平台都適用」與任一平台專屬視為衝突），
+      // 多組會讓「該套用哪組」變得不可預期。
+      const existing = await db.select().from(automations).where(eq(automations.applyScope, 'account_default'));
+      const clash = existing.find(
+        (a: { platform: string | null }) => a.platform == null || platform == null || a.platform === platform,
+      );
+      if (clash) {
+        return c.json({ error: '這個平台已有全帳號預設自動化，請編輯既有的那一組' }, 409);
+      }
+    }
+
+    const automationId = crypto.randomUUID();
+    await db.insert(automations).values({
+      id: automationId,
+      instagramMediaId: applyScope === 'media' ? body.instagramMediaId! : null,
+      applyScope,
+      platform: applyScope === 'media' ? null : platform,
+      name: body.name,
+      status: 'draft',
+      matchType,
+      publicReplyEnabled: body.publicReplyEnabled === false ? 0 : 1,
+      privateReplyEnabled: body.privateReplyEnabled === false ? 0 : 1,
+      openingDm: body.openingDm ?? null,
+      buttonText: body.buttonText ?? null,
+      buttonUrl: body.buttonUrl ?? null,
+      dailyLimit: typeof body.dailyLimit === 'number' ? body.dailyLimit : null,
+      ...funnelPatch(body),
+    });
+
+    await replaceKeywords(db, automationId, asStringArray(body.keywords));
+    await replaceVariants(db, automationId, asStringArray(body.publicReplyVariants));
+
+    return c.json({ id: automationId }, 201);
+  });
+
+  // GET /api/admin/automations/overview —— 已設定自動化的貼文 + 每篇統計（供儀表板）。
+  // 註：必須註冊在 GET /:id 之前，否則 "overview" 會被當成 id。
+  app.get('/overview', async (c) => {
+    const db = createDb(c.env.DB);
+    const autos = await db.select().from(automations);
+    const mediaRows = await db.select().from(instagramMedia);
+    const runs = await db.select().from(automationRuns);
+    const kws = await db.select().from(automationKeywords);
+    const contactRows = await db.select().from(contactAutomations);
+
+    const mediaById = new Map(mediaRows.map((m: { id: string }) => [m.id, m]));
+
+    const items = autos
+      // 綁定的貼文在 IG 上已刪除（同步時標記）→ 連同自動化一起隱藏，
+      // 與貼文列表的隱藏行為一致；發送紀錄仍保留於報表。
+      .filter((a: typeof automations.$inferSelect) => {
+        const media = a.instagramMediaId ? mediaById.get(a.instagramMediaId) : undefined;
+        return !(media as typeof instagramMedia.$inferSelect | undefined)?.deletedAt;
+      })
+      .map((a: typeof automations.$inferSelect) => {
+        const media = (a.instagramMediaId ? mediaById.get(a.instagramMediaId) : undefined) as
+          | typeof instagramMedia.$inferSelect
+          | undefined;
+        const myRuns = runs.filter((r: { automationId: string }) => r.automationId === a.id);
+        return {
+          automationId: a.id,
+          name: a.name,
+          status: a.status,
+          applyScope: a.applyScope,
+          matchType: a.matchType,
+          keywordCount: kws.filter((k: { automationId: string }) => k.automationId === a.id).length,
+          media: media
+            ? {
+                id: media.id,
+                platform: media.platform,
+                mediaType: media.mediaType,
+                caption: media.caption,
+                thumbnailUrl: media.thumbnailUrl,
+                permalink: media.permalink,
+              }
+            : null,
+          stats: {
+            triggered: myRuns.length,
+            publicReplySuccess: myRuns.filter(
+              (r: { publicReplyStatus: string | null }) => r.publicReplyStatus === 'success',
+            ).length,
+            dmSuccess: myRuns.filter(
+              (r: { privateReplyStatus: string | null }) => r.privateReplyStatus === 'success',
+            ).length,
+            failures: myRuns.filter((r: { status: string }) => r.status === 'completed_with_errors').length,
+            // Sean 版：實際交付（通過門檻、收到連結）的人數。
+            delivered: contactRows.filter(
+              (r: { automationId: string; deliveredAt: string | null }) => r.automationId === a.id && r.deliveredAt,
+            ).length,
+          },
+          gated: a.followGateEnabled === 1 || a.emailCaptureEnabled === 1,
+          platform: media ? media.platform : a.platform,
+          tag: a.tag,
+        };
+      })
+      // 啟用中排前面，其次暫停、草稿。
+      .sort((x, y) => {
+        const order: Record<string, number> = { active: 0, paused: 1, draft: 2 };
+        return (order[x.status] ?? 9) - (order[y.status] ?? 9);
+      });
+
+    return c.json({ automations: items });
+  });
+
+  // GET /api/admin/automations/:id —— 供編輯器預填
+  app.get('/:id', async (c) => {
+    const id = c.req.param('id');
+    const db = createDb(c.env.DB);
+    const rows = await db.select().from(automations).where(eq(automations.id, id)).limit(1);
+    if (rows.length === 0) return c.json({ error: '自動化不存在' }, 404);
+    const keywords = await db
+      .select()
+      .from(automationKeywords)
+      .where(eq(automationKeywords.automationId, id));
+    const variants = await db
+      .select()
+      .from(publicReplyVariants)
+      .where(eq(publicReplyVariants.automationId, id));
+    // 綁定媒體的基本資訊（編輯器判斷限動模式與顯示縮圖用）。
+    const mediaRow = rows[0].instagramMediaId
+      ? ((
+          await db
+            .select()
+            .from(instagramMedia)
+            .where(eq(instagramMedia.id, rows[0].instagramMediaId))
+            .limit(1)
+        )[0] ?? null)
+      : null;
+    return c.json({
+      automation: rows[0],
+      media: mediaRow
+        ? {
+            id: mediaRow.id,
+            platform: mediaRow.platform,
+            mediaType: mediaRow.mediaType,
+            caption: mediaRow.caption,
+            thumbnailUrl: mediaRow.thumbnailUrl,
+          }
+        : null,
+      keywords: keywords.map((k: { keyword: string }) => k.keyword),
+      publicReplyVariants: variants.map((v: { message: string }) => v.message),
+    });
+  });
+
+  // PATCH /api/admin/automations/:id
+  app.patch('/:id', async (c) => {
+    const id = c.req.param('id');
+    let body: Partial<CreateBody>;
+    try {
+      body = await c.req.json();
+    } catch {
+      return c.json({ error: '請求格式錯誤' }, 400);
+    }
+
+    const db = createDb(c.env.DB);
+    const existing = await db.select().from(automations).where(eq(automations.id, id)).limit(1);
+    if (existing.length === 0) return c.json({ error: '自動化不存在' }, 404);
+
+    const patch: Record<string, unknown> = { updatedAt: new Date().toISOString() };
+    if (typeof body.name === 'string') patch.name = body.name;
+    if (body.matchType && VALID_MATCH_TYPES.includes(body.matchType as never)) {
+      patch.matchType = body.matchType;
+    }
+    if (typeof body.publicReplyEnabled === 'boolean') {
+      patch.publicReplyEnabled = body.publicReplyEnabled ? 1 : 0;
+    }
+    if (typeof body.privateReplyEnabled === 'boolean') {
+      patch.privateReplyEnabled = body.privateReplyEnabled ? 1 : 0;
+    }
+    if (body.openingDm !== undefined) patch.openingDm = body.openingDm;
+    if (body.buttonText !== undefined) patch.buttonText = body.buttonText;
+    if (body.buttonUrl !== undefined) patch.buttonUrl = body.buttonUrl;
+    if (typeof body.dailyLimit === 'number') patch.dailyLimit = body.dailyLimit;
+    Object.assign(patch, funnelPatch(body));
+    if (body.platform !== undefined && existing[0].applyScope !== 'media' && existing[0].applyScope !== 'account_default') {
+      patch.platform = normalizePlatform(body.platform);
+    }
+
+    await db.update(automations).set(patch).where(eq(automations.id, id));
+
+    // 有帶 keywords / publicReplyVariants 就整批替換。
+    if (body.keywords !== undefined) {
+      await replaceKeywords(db, id, asStringArray(body.keywords));
+    }
+    if (body.publicReplyVariants !== undefined) {
+      await replaceVariants(db, id, asStringArray(body.publicReplyVariants));
+    }
+    return c.json({ ok: true });
+  });
+
+  // POST /api/admin/automations/:id/activate
+  app.post('/:id/activate', async (c) => {
+    const id = c.req.param('id');
+    const db = createDb(c.env.DB);
+
+    const rows = await db.select().from(automations).where(eq(automations.id, id)).limit(1);
+    const automation = rows[0];
+    const keywordRows = automation
+      ? await db.select().from(automationKeywords).where(eq(automationKeywords.automationId, id))
+      : [];
+    const settings = await db.select().from(systemSettings).limit(1);
+
+    // Token 健康度：以帳號的 circuit_breaker_status 粗略判斷（MVP）。
+    // 未綁定貼文的自動化（next_post / account_default）直接看帳號本身。
+    // 綁定的媒體同時供 isStory 判斷（限動自動化的檢核規則不同）。
+    let tokenHealthy = true;
+    let boundMedia: typeof instagramMedia.$inferSelect | null = null;
+    if (automation) {
+      if (automation.instagramMediaId) {
+        const media = await db
+          .select()
+          .from(instagramMedia)
+          .where(eq(instagramMedia.id, automation.instagramMediaId))
+          .limit(1);
+        boundMedia = media[0] ?? null;
+      }
+      const acct = boundMedia
+        ? await db
+            .select()
+            .from(instagramAccounts)
+            .where(eq(instagramAccounts.id, boundMedia.instagramAccountId))
+            .limit(1)
+        : automation.platform
+          ? await db.select().from(instagramAccounts).where(eq(instagramAccounts.platform, automation.platform)).limit(1)
+          : await db.select().from(instagramAccounts).limit(1);
+      if (acct[0]) tokenHealthy = acct[0].circuitBreakerStatus === 'closed';
+    }
+
+    const errors = validateActivation({
+      automationExists: Boolean(automation),
+      matchType: automation?.matchType ?? '',
+      keywordCount: keywordRows.length,
+      publicReplyEnabled: automation?.publicReplyEnabled === 1,
+      privateReplyEnabled: automation?.privateReplyEnabled === 1,
+      openingDm: automation?.openingDm ?? null,
+      buttonUrl: automation?.buttonUrl ?? null,
+      tokenHealthy,
+      emergencyStop: settings[0]?.emergencyStop === 1,
+      isStory: boundMedia?.mediaType === 'STORY',
+      applyScope: automation?.applyScope,
+      followGateEnabled: automation?.followGateEnabled === 1,
+      emailCaptureEnabled: automation?.emailCaptureEnabled === 1,
+    });
+
+    if (errors.length > 0) {
+      return c.json({ error: 'activation_failed', reasons: errors }, 422);
+    }
+
+    await db
+      .update(automations)
+      .set({ status: 'active', updatedAt: new Date().toISOString() })
+      .where(eq(automations.id, id));
+    return c.json({ ok: true });
+  });
+
+  // POST /api/admin/automations/:id/pause
+  app.post('/:id/pause', async (c) => {
+    const id = c.req.param('id');
+    const db = createDb(c.env.DB);
+    const existing = await db.select().from(automations).where(eq(automations.id, id)).limit(1);
+    if (existing.length === 0) return c.json({ error: '自動化不存在' }, 404);
+    await db
+      .update(automations)
+      .set({ status: 'paused', updatedAt: new Date().toISOString() })
+      .where(and(eq(automations.id, id)));
+    return c.json({ ok: true });
+  });
+
+  return app;
+}

@@ -1,0 +1,40 @@
+{
+  "name": "instagram-comment-dm-bot",
+  "private": true,
+  "description": "IG／FB 自動私訊（Sean 版）：留言、限時動態回覆、私訊關鍵字自動回覆。後端 Supabase Edge Functions＋Postgres，後台放 GitHub Pages。",
+  "license": "MIT",
+  "type": "module",
+  "scripts": {
+    "build:function": "node scripts/build-function.mjs",
+    "build:admin": "npm run build --prefix admin && tsx scripts/build-privacy.ts admin/dist/privacy.html",
+    "build": "npm run build:admin && npm run build:function",
+    "db:generate": "drizzle-kit generate",
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit && tsc --noEmit -p scripts/tsconfig.json && npm run typecheck --prefix admin",
+    "create-admin": "tsx scripts/create-admin.ts",
+    "check-meta": "tsx scripts/check-meta.ts",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "chinese-simple2traditional": "^2.3.2",
+    "drizzle-orm": "^0.45.2",
+    "hono": "^4.12.32",
+    "postgres": "^3.4.9"
+  },
+  "devDependencies": {
+    "@electric-sql/pglite": "^0.5.10",
+    "@eslint/js": "^9.39.5",
+    "drizzle-kit": "^0.31.10",
+    "esbuild": "^0.28.2",
+    "eslint": "^9.39.5",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-react": "^7.37.5",
+    "eslint-plugin-react-hooks": "^7.1.1",
+    "globals": "^17.8.0",
+    "prettier": "^3.9.6",
+    "tsx": "^4.23.1",
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.65.0",
+    "vitest": "^4.1.10"
+  }
+}

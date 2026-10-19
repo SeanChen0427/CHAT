@@ -1,0 +1,28 @@
+name: 檢查
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm ci
+        working-directory: admin
+      - name: 程式風格
+        run: npm run lint
+      - name: 型別檢查
+        run: npm run typecheck
+      - name: 測試
+        run: npm run test
+      - name: 打包檔與原始碼一致
+        run: |
+          npm run build:function
+          git diff --exit-code supabase/functions/api || (echo "supabase/functions/api 沒有重新產生，請執行 npm run build:function 後提交" && exit 1)

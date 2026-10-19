@@ -1,0 +1,23 @@
+.env
+.env.*
+.dev.vars
+node_modules/
+.DS_Store
+dist/
+build/
+coverage/
+.cache/
+tmp/
+.wrangler/
+*.tsbuildinfo
+
+admin-insert.sql
+scratch-*.sql
+
+# 教學文件（含個人後台截圖，勿推上公開 repo）
+部署教學.docx
+*.docx
+
+# Sean 版（Supabase）
+supabase/.temp/
+supabase/.branches/

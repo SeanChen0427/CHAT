@@ -1,0 +1,7 @@
+# Sean 版（Supabase）：Edge Function 設定（Supabase CLI 部署時讀取）。
+project_id = "gynpbquftdsoevxiwivp"
+
+[functions.api]
+# 事件通知（Meta）與後台都不是 Supabase 使用者登入，自行驗證簽章／權杖，因此關閉 JWT 檢查。
+verify_jwt = false
+entrypoint = "./functions/api/index.ts"
