@@ -22,11 +22,17 @@ function getToken(): string | null {
   }
 }
 
-export function apiFetch(path: string, init: RequestInit = {}): Promise<Response> {
+export async function apiFetch(path: string, init: RequestInit = {}): Promise<Response> {
   const headers = new Headers(init.headers);
   const token = getToken();
   if (token) headers.set('Authorization', `Bearer ${token}`);
-  return fetch(API_BASE + path, { ...init, headers });
+  try {
+    return await fetch(API_BASE + path, { ...init, headers });
+  } catch {
+    // 瀏覽器連不到後端（斷網、後端暫停）時給中文說明，不顯示英文的 Failed to fetch。
+    const err: ApiError = { status: 0, message: '連不到系統後端，請確認網路後重新整理。若一直如此，可能是 Supabase 專案被暫停，到 Supabase 後台按 Restore 即可。' };
+    throw err;
+  }
 }
 
 // 下載檔案（CSV 匯出）：跨網域時 <a href> 帶不了權杖，改用 fetch 取得後觸發下載。
@@ -64,9 +70,9 @@ export async function apiGet<T = unknown>(path: string): Promise<T> {
   return (await res.json()) as T;
 }
 
-export async function apiPost<T = unknown>(path: string, body: unknown): Promise<T> {
+export async function apiPost<T = unknown>(path: string, body: unknown, method: 'POST' | 'PUT' = 'POST'): Promise<T> {
   const res = await apiFetch(path, {
-    method: 'POST',
+    method,
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(body),
   });
@@ -108,4 +114,9 @@ export async function apiDelete<T = unknown>(path: string): Promise<T> {
     throw err;
   }
   return (await res.json()) as T;
+}
+
+// Sean 版（一鍵連結）：PUT（設定精靈存 App 資料）。
+export function apiPut<T = unknown>(path: string, body: unknown): Promise<T> {
+  return apiPost<T>(path, body, 'PUT');
 }

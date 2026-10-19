@@ -6,6 +6,7 @@ import { HomePage } from './pages/HomePage';
 import { AutomationEditorPage } from './pages/AutomationEditorPage';
 import { AccountPage } from './pages/AccountPage';
 import { ContactsPage } from './pages/ContactsPage';
+import { SetupPage } from './pages/SetupPage';
 import './styles/tokens.css';
 import './styles/app.css';
 
@@ -21,6 +22,7 @@ createRoot(document.getElementById('root')!).render(
         <Route path="/automations/new" element={<AutomationEditorPage />} />
         <Route path="/account" element={<AccountPage />} />
         <Route path="/contacts" element={<ContactsPage />} />
+        <Route path="/setup" element={<SetupPage />} />
       </Routes>
     </BrowserRouter>
   </StrictMode>,

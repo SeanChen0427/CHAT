@@ -15,6 +15,13 @@
       "when": 1792422689825,
       "tag": "0001_rls",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1792429427430,
+      "tag": "0002_app_config",
+      "breakpoints": true
     }
   ]
 }

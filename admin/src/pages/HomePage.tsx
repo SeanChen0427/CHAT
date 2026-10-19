@@ -1,7 +1,7 @@
 // 首頁：IG 個人頁式版面——頁首（帳號＋今日統計＋系統控制）、限動圓圈列、貼文九宮格。
 // 取代原本的儀表板與貼文兩頁。
 import { useCallback, useEffect, useState } from 'react';
-import { useNavigate } from 'react-router';
+import { Link, useNavigate } from 'react-router';
 import { AppHeader } from '../components/AppHeader';
 import { apiGet, apiPost, type ApiError } from '../api/client';
 
@@ -307,6 +307,15 @@ function StoryCircle({ story, active, onClick }: { story: Media; active: boolean
   );
 }
 
+// 精靈手動離開後，這個分頁不再自動導回（關掉重開才會再提醒）。
+function sessionStorageGet(key: string): string | null {
+  try {
+    return sessionStorage.getItem(key);
+  } catch {
+    return null;
+  }
+}
+
 export function HomePage() {
   const navigate = useNavigate();
   const [status, setStatus] = useState<Status | null>(null);
@@ -331,6 +340,10 @@ export function HomePage() {
       setStatus(s);
       setMedia(m.media);
       setOverview(o.automations);
+      // Sean 版（設定精靈）：還沒連結任何帳號、也沒有規則（第一次使用）時，直接帶到設定精靈。
+      if (!s.account && !s.facebookPage && o.automations.length === 0 && !sessionStorageGet('setup_skipped')) {
+        navigate('/setup', { replace: true });
+      }
     } catch (e) {
       if ((e as ApiError).status === 401) navigate('/login');
       else setError((e as ApiError).message);
@@ -460,6 +473,11 @@ export function HomePage() {
     <>
       <AppHeader />
       <div className="container page-stack">
+        {status && !status.account && !status.facebookPage ? (
+          <div className="alert alert-warning alerts-block" role="status">
+            還沒連結 Instagram 或 Facebook 粉專，系統收不到留言與私訊。<Link to="/setup">打開設定精靈</Link>，照步驟完成連結。
+          </div>
+        ) : null}
         {error || syncNotice || syncErrors.length > 0 ? (
           <div className="stack-sm">
             {error ? <div className="alert alert-danger">{error}</div> : null}

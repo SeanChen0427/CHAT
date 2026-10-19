@@ -6,7 +6,9 @@ import { createAdminRoutes } from './admin/routes';
 import type { SchemaDb } from './database/types';
 import type { EventQueue } from './queue/producer';
 import { createInternalRoutes } from './internal/routes';
+import { createOAuthCallbackRoutes } from './admin/connect';
 import { renderPrivacyHtml } from './privacy';
+import { withAppConfig } from './config/app-config';
 import { createWebhookRoutes } from './webhook/routes';
 
 // 頻率限制器介面（Sean 版 Supabase：由 src/security/memory-rate-limiter.ts 提供記憶體實作）。
@@ -23,6 +25,8 @@ export type AppBindings = {
   ADMIN_ORIGINS?: string;
   // pg_cron 呼叫內部排程端點時帶的密鑰（Authorization: Bearer）。
   CRON_SECRET?: string;
+  // 後台網頁完整網址（例：https://帳號.github.io/CHAT/），學員安裝流程會自動設定。
+  ADMIN_SITE_URL?: string;
   // API 對外網址（例：https://xxxx.supabase.co/functions/v1），後台「Meta 串接資訊」顯示用。
   PUBLIC_API_BASE?: string;
   INSTAGRAM_APP_SECRET: string;
@@ -34,6 +38,9 @@ export type AppBindings = {
   // Meta App 的應用程式密鑰：粉專 webhook 用它簽章（Instagram 登入版用的是 Instagram App Secret）。
   META_APP_SECRET?: string;
   FACEBOOK_GRAPH_API_VERSION?: string;
+  // Sean 版（一鍵連結）：OAuth 用的 App ID（App Secret 沿用上方兩個欄位）。通常由設定精靈存在 app_config。
+  INSTAGRAM_APP_ID?: string;
+  META_APP_ID?: string;
   ADMIN_SESSION_SECRET: string;
   META_GRAPH_API_VERSION: string;
   META_BASE_URL?: string;
@@ -46,8 +53,16 @@ export type AppBindings = {
 export function createApp() {
   const app = new Hono<{ Bindings: AppBindings }>();
 
+  // Sean 版（一鍵連結）：把設定精靈存在資料庫的 Meta App 資料與權杖合併進 env。
+  app.use('*', async (c, next) => {
+    c.env = await withAppConfig(c.env);
+    return next();
+  });
+
   // Sean 版（Supabase）：根路徑導向 GitHub Pages 上的後台（未設定時回簡短說明）。
   app.get('/', (c) => {
+    const site = c.env.ADMIN_SITE_URL?.trim();
+    if (site) return c.redirect(site, 302);
     const first = (c.env.ADMIN_ORIGINS ?? '').split(',')[0]?.trim();
     if (first) return c.redirect(first.replace(/\/$/, '') + '/CHAT/', 302);
     return c.text('IG／FB 自動私訊 API 運作中', 200);
@@ -86,6 +101,7 @@ export function createApp() {
   app.route('/api/admin', createAdminRoutes());
   app.route('/api/webhooks', createWebhookRoutes());
   app.route('/api/internal', createInternalRoutes());
+  app.route('/api/oauth', createOAuthCallbackRoutes());
 
   // Sean 版（Supabase）：後台前端改放 GitHub Pages，API 不再提供 /admin 靜態檔。
   return app;

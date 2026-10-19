@@ -168,24 +168,5 @@ export function createSystemRoutes() {
     return c.json({ ok: true, circuitBreakerStatus: 'closed' });
   });
 
-  // Sean 版（Supabase）：Meta 後台要填的事件通知網址與驗證碼，以及各項權杖是否已設定（不回傳權杖本身）。
-  app.get('/meta-setup', adminApiRateLimitMiddleware(), (c) => {
-    const base = (c.env.PUBLIC_API_BASE ?? '').replace(/\/$/, '');
-    const has = (v: string | undefined) => Boolean(v && v.trim());
-    return c.json({
-      callbackUrl: base ? `${base}/api/webhooks/meta/instagram` : null,
-      verifyToken: c.env.WEBHOOK_VERIFY_TOKEN ?? null,
-      privacyUrl: (c.env.ADMIN_ORIGINS ?? '').split(',')[0]?.trim()
-        ? `${(c.env.ADMIN_ORIGINS ?? '').split(',')[0].trim().replace(/\/$/, '')}/CHAT/privacy.html`
-        : null,
-      configured: {
-        instagramAppSecret: has(c.env.INSTAGRAM_APP_SECRET),
-        instagramToken: has(c.env.INSTAGRAM_ACCOUNT_ACCESS_TOKEN),
-        metaAppSecret: has(c.env.META_APP_SECRET),
-        facebookPageToken: has(c.env.FACEBOOK_PAGE_ACCESS_TOKEN),
-      },
-    });
-  });
-
   return app;
 }

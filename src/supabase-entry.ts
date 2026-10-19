@@ -7,6 +7,7 @@ import { createApp, type AppBindings } from './app';
 import * as schema from './database/schema';
 import type { SchemaDb } from './database/types';
 import { createJobQueue, runDueJobs } from './queue/jobs';
+import { withAppConfig } from './config/app-config';
 import { createMemoryRateLimiter } from './security/memory-rate-limiter';
 import { ADMIN_API_LIMIT, ADMIN_API_PERIOD_SECONDS } from './security/rate-limit';
 
@@ -57,7 +58,7 @@ function background(p: Promise<unknown>) {
 }
 
 // 收到事件後立刻在背景處理一次；沒處理完的由 pg_cron 每分鐘的 /api/internal/tick 補上。
-env.COMMENT_QUEUE = createJobQueue(db, () => background(runDueJobs(env)));
+env.COMMENT_QUEUE = createJobQueue(db, () => background(withAppConfig(env).then((e) => runDueJobs(e))));
 
 const app = createApp();
 Deno.serve((req) => app.fetch(req, env));

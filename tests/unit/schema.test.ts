@@ -6,7 +6,7 @@ import { freshTestDb } from '../helpers/pg';
 const createTestDb = freshTestDb;
 
 describe('Postgres schema migration', () => {
-  it('creates all 16 tables (13 upstream + 3 Sean 版) with RLS enabled', async () => {
+  it('creates all 17 tables (13 upstream + 4 Sean 版) with RLS enabled', async () => {
     const db = await freshTestDb();
     const rows = await db.rawAll<{ tablename: string; rowsecurity: boolean }>(
       "SELECT tablename, rowsecurity FROM pg_tables WHERE schemaname = 'public' ORDER BY tablename",
@@ -14,6 +14,7 @@ describe('Postgres schema migration', () => {
     expect(rows.map((r) => r.tablename)).toEqual([
       'admin_users',
       'api_attempts',
+      'app_config',
       'audit_logs',
       'automation_keywords',
       'automation_runs',

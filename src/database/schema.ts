@@ -337,3 +337,13 @@ export const eventJobs = pgTable(
   },
   (table) => [index('idx_event_jobs_due').on(table.status, table.nextRunAt)],
 );
+
+// Sean 版（一鍵連結）：在後台設定精靈填入的 Meta App 資料與連結取得的權杖。
+// 鍵值表：INSTAGRAM_APP_ID、INSTAGRAM_APP_SECRET、META_APP_ID、META_APP_SECRET、
+// FACEBOOK_PAGE_ACCESS_TOKEN、FB_PAGE_CANDIDATES（多個粉專待選，暫存）、WEBHOOK_STATUS_*（自動設定結果）。
+// 值優先於 Edge Function secrets（見 src/config/app-config.ts）。整張表開 RLS，只有後端讀得到。
+export const appConfig = pgTable('app_config', {
+  key: text('key').primaryKey(),
+  value: text('value').notNull(),
+  updatedAt: text('updated_at').notNull().$defaultFn(nowIso),
+});

@@ -1,10 +1,13 @@
-# Sean 版（Supabase）：建置後台前端並推到 gh-pages 分支，由 GitHub Pages「Deploy from a branch（gh-pages）」發佈。
-# 網址：https://<帳號>.github.io/CHAT/
+# Sean 版：建置後台前端並推到 gh-pages 分支，由 GitHub Pages「Deploy from a branch（gh-pages）」發佈。
+# 網址：https://<帳號>.github.io/<repo 名稱>/
 name: 發佈後台網頁
 
 on:
   push:
     branches: [main]
+  workflow_run:
+    workflows: ['安裝與更新']
+    types: [completed]
   workflow_dispatch:
 
 permissions:
@@ -23,13 +26,22 @@ jobs:
         with:
           node-version: 22
           cache: npm
+      - name: 決定後端網址
+        env:
+          REF: ${{ secrets.SUPABASE_PROJECT_REF || vars.SUPABASE_PROJECT_REF }}
+          API_BASE: ${{ vars.API_BASE }}
+        run: |
+          if [ -z "$API_BASE" ]; then
+            if [ -n "$REF" ]; then API_BASE="https://${REF}.supabase.co/functions/v1";
+            elif [ "${GITHUB_REPOSITORY_OWNER,,}" = "seanchen0427" ]; then API_BASE="https://gynpbquftdsoevxiwivp.supabase.co/functions/v1";
+            else echo "::error::還沒設定 SUPABASE_PROJECT_REF，請照學員安裝手冊第 4 步設定。"; exit 1; fi
+          fi
+          echo "VITE_API_BASE=$API_BASE" >> "$GITHUB_ENV"
       - run: npm ci
       - run: npm ci
         working-directory: admin
       - name: 建置
         env:
-          # 後端 API 網址；換 Supabase 專案時改 repo 的 Variables > API_BASE。
-          VITE_API_BASE: ${{ vars.API_BASE || 'https://gynpbquftdsoevxiwivp.supabase.co/functions/v1' }}
           VITE_BASE: /${{ github.event.repository.name }}/
           PRIVACY_CONTACT: ${{ vars.PRIVACY_CONTACT }}
         run: npm run build:admin && touch admin/dist/.nojekyll

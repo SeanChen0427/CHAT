@@ -113,6 +113,16 @@ export function AppHeader() {
                   type="button"
                   onClick={() => {
                     setOpenMenu(null);
+                    navigate('/setup');
+                  }}
+                >
+                  <strong>設定精靈</strong>
+                  <span>連結 Instagram／Facebook、Meta App 設定</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setOpenMenu(null);
                     navigate('/account');
                   }}
                 >

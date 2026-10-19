@@ -3,6 +3,7 @@ import { Hono } from 'hono';
 import type { AppBindings } from '../app';
 import { createAuthRoutes } from './auth';
 import { createAutomationRoutes } from './automations';
+import { createConnectRoutes } from './connect';
 import { createContactRoutes } from './contacts';
 import { createMediaRoutes } from './media';
 import { createRunsRoutes } from './runs';
@@ -18,6 +19,7 @@ export function createAdminRoutes() {
   admin.route('/automation-runs', createRunsRoutes());
   // Sean 版新增
   admin.route('/contacts', createContactRoutes());
+  admin.route('/connect', createConnectRoutes());
 
   return admin;
 }

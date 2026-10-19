@@ -1,80 +1,9 @@
-// 帳號設定頁：Meta 串接資訊（Sean 版）、變更登入密碼。
-import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router';
+// 帳號設定頁：連結帳號入口（Sean 版）、變更登入密碼。
+import { useState } from 'react';
+import { Link, useNavigate } from 'react-router';
 import { AppHeader } from '../components/AppHeader';
-import { apiGet, apiPost, type ApiError } from '../api/client';
+import { apiPost, type ApiError } from '../api/client';
 
-// Sean 版（Supabase）：Meta 後台要填的資訊。
-interface MetaSetup {
-  callbackUrl: string | null;
-  verifyToken: string | null;
-  privacyUrl: string | null;
-  configured: { instagramAppSecret: boolean; instagramToken: boolean; metaAppSecret: boolean; facebookPageToken: boolean };
-}
-
-function CopyField({ id, label, value }: { id: string; label: string; value: string | null }) {
-  const [copied, setCopied] = useState(false);
-  return (
-    <div className="form-field">
-      <label className="label" htmlFor={id}>
-        {label}
-      </label>
-      <div className="copy-row">
-        <input id={id} className="input" readOnly value={value ?? '（尚未設定）'} onFocus={(e) => e.target.select()} />
-        <button
-          type="button"
-          className="btn btn-outline btn-sm"
-          disabled={!value}
-          onClick={() => {
-            if (!value) return;
-            navigator.clipboard?.writeText(value).then(
-              () => {
-                setCopied(true);
-                setTimeout(() => setCopied(false), 1500);
-              },
-              () => undefined,
-            );
-          }}
-        >
-          {copied ? '已複製' : '複製'}
-        </button>
-      </div>
-    </div>
-  );
-}
-
-function MetaSetupCard() {
-  const [info, setInfo] = useState<MetaSetup | null>(null);
-  useEffect(() => {
-    apiGet<MetaSetup>('/api/admin/system/meta-setup').then(setInfo, () => setInfo(null));
-  }, []);
-  if (!info) return null;
-  const items: Array<[string, boolean]> = [
-    ['Instagram 應用程式密鑰', info.configured.instagramAppSecret],
-    ['Instagram 存取權杖', info.configured.instagramToken],
-    ['Meta 應用程式密鑰（Facebook 用）', info.configured.metaAppSecret],
-    ['Facebook 粉專存取權杖', info.configured.facebookPageToken],
-  ];
-  return (
-    <div className="card">
-      <h2 className="card-title">Meta 串接資訊</h2>
-      <p className="page-subtitle">到 Meta 開發者後台設定事件通知時，貼上以下兩個值。</p>
-      <CopyField id="callback-url" label="回呼網址（Callback URL）" value={info.callbackUrl} />
-      <CopyField id="verify-token" label="驗證權杖（Verify token）" value={info.verifyToken} />
-      <CopyField id="privacy-url" label="隱私權政策網址" value={info.privacyUrl} />
-      <div className="form-field">
-        <span className="label">權杖設定狀態</span>
-        <ul className="setup-list">
-          {items.map(([name, ok]) => (
-            <li key={name} className={ok ? 'is-ok' : 'is-missing'}>
-              {ok ? '已設定' : '未設定'}：{name}
-            </li>
-          ))}
-        </ul>
-      </div>
-    </div>
-  );
-}
 
 const MIN_PASSWORD_LENGTH = 12;
 
@@ -122,7 +51,13 @@ export function AccountPage() {
       <AppHeader />
       <div className="container container-tight">
         <h1 className="page-title">帳號設定</h1>
-        <MetaSetupCard />
+        <div className="card">
+          <h2 className="card-title">連結帳號</h2>
+          <p className="page-subtitle">連結或更換 Instagram、Facebook 粉專，以及 Meta App 設定，都在設定精靈。</p>
+          <Link className="btn btn-outline btn-sm" to="/setup">
+            打開設定精靈
+          </Link>
+        </div>
         <div className="card">
           <h2 className="card-title">變更密碼</h2>
           <form onSubmit={handleSubmit}>

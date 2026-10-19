@@ -1,0 +1,57 @@
+# Sean 版（學員安裝）：把這套工具安裝／更新到「你自己的」Supabase 專案。
+# 第一次：照 docs/學員安裝手冊.md 設定兩個 Secrets 後，到 Actions 分頁手動執行一次。
+# 之後：每次 main 有更新（例如按 Sync fork 同步新版）會自動執行。
+name: 安裝與更新
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+
+concurrency:
+  group: install
+  cancel-in-progress: false
+
+jobs:
+  install:
+    runs-on: ubuntu-latest
+    env:
+      SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+      SUPABASE_PROJECT_REF: ${{ secrets.SUPABASE_PROJECT_REF || vars.SUPABASE_PROJECT_REF }}
+    steps:
+      - name: 檢查設定
+        id: check
+        run: |
+          if [ -z "$SUPABASE_ACCESS_TOKEN" ] || [ -z "$SUPABASE_PROJECT_REF" ]; then
+            if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+              echo "::error::還沒設定 SUPABASE_ACCESS_TOKEN 或 SUPABASE_PROJECT_REF。請照學員安裝手冊第 4 步，到 Settings > Secrets and variables > Actions 新增後再執行。"
+              exit 1
+            fi
+            echo "未設定 Supabase，略過安裝。"
+            echo "skip=1" >> "$GITHUB_OUTPUT"
+          fi
+      - uses: actions/checkout@v4
+        if: steps.check.outputs.skip != '1'
+      - uses: actions/setup-node@v4
+        if: steps.check.outputs.skip != '1'
+        with:
+          node-version: 22
+      - name: 安裝資料庫結構與排程
+        if: steps.check.outputs.skip != '1'
+        run: node scripts/supabase-install.mjs
+      - uses: supabase/setup-cli@v1
+        if: steps.check.outputs.skip != '1'
+        with:
+          version: latest
+      - name: 部署後端
+        if: steps.check.outputs.skip != '1'
+        run: supabase functions deploy api --project-ref "$SUPABASE_PROJECT_REF" --no-verify-jwt --use-api
+      - name: 設定後台網址
+        if: steps.check.outputs.skip != '1'
+        run: |
+          OWNER="${GITHUB_REPOSITORY_OWNER,,}"
+          REPO="${GITHUB_REPOSITORY#*/}"
+          supabase secrets set --project-ref "$SUPABASE_PROJECT_REF" \
+            "ADMIN_ORIGINS=https://${OWNER}.github.io" \
+            "ADMIN_SITE_URL=https://${OWNER}.github.io/${REPO}/"
+          echo "後台網址：https://${OWNER}.github.io/${REPO}/"
