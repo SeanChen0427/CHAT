@@ -508,6 +508,14 @@ export function SetupPage() {
               點 Meta 後台<strong>左側選單</strong>的<strong>「商家專用 Facebook 登入」&gt;「設定」</strong>，在「用戶端 OAuth 設定」的<strong>「有效的 OAuth 重新導向 URI」</strong>貼上下面的網址，<strong>按 Enter</strong>（網址會變成小標籤），再按最下面的「儲存變更」：
               <CopyBox label="Facebook 重新導向網址" value={status.redirectUris.facebook} />
             </li>
+            <li>
+              左側<strong>「應用程式設定」&gt;「基本資料」</strong>的<strong>「應用程式網域」</strong>貼上下面兩個網域（各按一次 Enter），再按「儲存變更」。沒設定的話，授權完會出現「無法載入網址」。
+              <CopyBox label="網域一（系統後端）" value={status.redirectUris.facebook ? new URL(status.redirectUris.facebook).host : null} />
+              <CopyBox label="網域二（你的後台網頁）" value={window.location.host} />
+            </li>
+            <li>
+              左側「使用案例」&gt;「管理粉絲專頁的所有內容」&gt;「自訂」，在權限清單把 <strong>pages_read_user_content</strong> 按「新增」。沒加的話，連結時 Meta 會跳出「Invalid Scopes」提醒並中斷。
+            </li>
             <li>確認第 3 步已填 Meta App ID 與 Secret，再按下方按鈕，登入並勾選你的粉專。</li>
           </ol>
           <div className="btn-row">
