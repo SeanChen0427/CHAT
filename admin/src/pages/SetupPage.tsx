@@ -514,9 +514,9 @@ export function SetupPage() {
               <CopyBox label="網域二（你的後台網頁）" value={window.location.host} />
             </li>
             <li>
-              左側「使用案例」&gt;「管理粉絲專頁的所有內容」&gt;「自訂」，在權限清單把 <strong>pages_read_user_content</strong> 按「新增」。沒加的話，連結時 Meta 會跳出「Invalid Scopes」提醒並中斷。
+              左側「使用案例」&gt;「管理粉絲專頁的所有內容」&gt;「自訂」，在權限清單把 <strong>pages_read_user_content</strong> 和 <strong>business_management</strong> 都按「新增」。沒加的話，連結時 Meta 會跳出「Invalid Scopes」提醒並中斷。
             </li>
-            <li>確認第 3 步已填 Meta App ID 與 Secret，再按下方按鈕，登入並勾選你的粉專。</li>
+            <li>確認第 3 步已填 Meta App ID 與 Secret，再按下方按鈕登入。授權畫面如果有<strong>「編輯存取權限」</strong>或「選擇粉絲專頁／商家」，要<strong>勾選你的粉專</strong>（粉專放在商家資產組合的話，也勾那個商家），再允許所有權限。</li>
           </ol>
           <div className="btn-row">
             <button type="button" className="btn btn-primary" disabled={!metaDone || busy === 'facebook'} onClick={() => startConnect('facebook')}>
