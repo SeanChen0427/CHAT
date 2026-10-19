@@ -32,7 +32,7 @@ Sean 要的是網頁工具，不在自己電腦安裝任何東西。上游原本
 | 排程 | pg_cron＋pg_net | `supabase/setup/01_密鑰與排程.sql`：tick 每分鐘、同步台北 04:00 與 08:00、清理 03:00 |
 | 系統密鑰 | Supabase Vault | `ADMIN_SESSION_SECRET`、`CRON_SECRET`、`WEBHOOK_VERIFY_TOKEN` 在資料庫內隨機產生，Edge Function 啟動時讀取；Edge Function secrets 有同名值時以 secrets 為準 |
 | Meta 權杖 | Edge Function secrets | `INSTAGRAM_APP_SECRET`、`INSTAGRAM_ACCOUNT_ACCESS_TOKEN`、`META_APP_SECRET`、`FACEBOOK_PAGE_ACCESS_TOKEN`，由 Sean 在 Supabase 後台輸入，不經過 AI 對話 |
-| 後台前端 | GitHub Pages | repo `SeanChen0427/CHAT`，網址 `https://seanchen0427.github.io/CHAT/`；`.github/workflows/pages.yml` 建置 |
+| 後台前端 | GitHub Pages | repo `SeanChen0427/CHAT`，網址 `https://seanchen0427.github.io/CHAT/`；`.github/workflows/pages.yml` 建置後推到 `gh-pages` 分支，Pages 設定為 Deploy from a branch（gh-pages）|
 | 隱私權政策 | GitHub Pages `privacy.html` | Supabase Edge Function 不能對外提供 HTML 頁面，因此由 `scripts/build-privacy.ts` 產生靜態頁 |
 
 跨網域後台的處理：後台（github.io）與 API（supabase.co）不同網域，瀏覽器不帶第三方 Cookie，因此登入／初始設定回傳 `token`，前端存在 localStorage，每次請求帶 `Authorization: Bearer`（`requireAdminAuth` 先讀 Bearer，沒有才讀 Cookie）。`ADMIN_ORIGINS`（預設 `https://seanchen0427.github.io`）同時用於 CORS 與 CSRF 允許來源。
